@@ -7,15 +7,19 @@
 </head>
 <body>
 
-<nav>
-    <a href="{{ url_for('main.home') }}">Home</a> |
-    <a href="{{ url_for('main.login') }}">Login</a> |
-    <a href="{{ url_for('main.register') }}"> Register</a> |
-</nav>
+<div class="container">
 
-<hr>
+    <nav>
+        <a href="{{ url_for('main.home') }}">Home</a>
+        <a href="{{ url_for('main.login') }}">Login</a>
+        <a href="{{ url_for('main.register') }}">Register</a>
+    </nav>
 
-{% block content %}{% endblock %}
+    <hr>
+
+    {% block content %}{% endblock %}
+
+</div>
 
 </body>
 </html>
