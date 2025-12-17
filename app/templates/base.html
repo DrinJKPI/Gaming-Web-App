@@ -2,9 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Gaming Webstore</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
+    <h1>Gaming Webstore</h1>
+    <p>Welcome to the Gaming Webstore prototype.</p>
 
+    {% block content %}{% endblock %}
 </body>
 </html>
