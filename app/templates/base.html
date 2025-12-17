@@ -6,9 +6,16 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-    <h1>Gaming Webstore</h1>
-    <p>Welcome to the Gaming Webstore prototype.</p>
 
-    {% block content %}{% endblock %}
+<nav>
+    <a href="{{ url_for('main.home') }}">Home</a> |
+    <a href="{{ url_for('main.login') }}">Login</a> |
+    <a href="{{ url_for('main.register') }}"> Register</a> |
+</nav>
+
+<hr>
+
+{% block content %}{% endblock %}
+
 </body>
 </html>
