@@ -1,2 +1,2 @@
 class Config:
-    SECRET_KEY = "dev-key-change-later"
+    SECRET_KEY = "dev-secret-key-change-later"
