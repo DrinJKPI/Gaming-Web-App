@@ -1,17 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="d4f1a1ef-2a76-48ee-b614-39d3056bd2c1" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+    <list default="true" id="d4f1a1ef-2a76-48ee-b614-39d3056bd2c1" name="Changes" comment="Added user_sessions table to SQL, updated games table, and combined flask and bcrypt into flask-bcrypt in requirements.txt">
+      <change afterPath="$PROJECT_DIR$/app/static/javascript/formatting.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/database/schema.sql" beforeDir="false" afterPath="$PROJECT_DIR$/database/schema.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JavaScript File" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -51,6 +56,11 @@
     "last_opened_file_path": "C:/Users/DrinJakupi/PycharmProjects/Gaming-Webstore-App",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
     "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql"
+    ]
   }
 }]]></component>
   <component name="RunManager">
@@ -89,7 +99,9 @@
       <updated>1768906696681</updated>
       <workItem from="1768906697686" duration="79000" />
       <workItem from="1768906777494" duration="121000" />
-      <workItem from="1768906977774" duration="3274000" />
+      <workItem from="1768906977774" duration="4009000" />
+      <workItem from="1768923921140" duration="3034000" />
+      <workItem from="1768940767290" duration="1354000" />
     </task>
     <task id="LOCAL-00001" summary="Typo">
       <option name="closed" value="true" />
@@ -99,7 +111,15 @@
       <option name="project" value="LOCAL" />
       <updated>1768908715873</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Added user_sessions table to SQL, updated games table, and combined flask and bcrypt into flask-bcrypt in requirements.txt">
+      <option name="closed" value="true" />
+      <created>1768913678250</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1768913678250</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -107,9 +127,10 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Typo" />
-    <option name="LAST_COMMIT_MESSAGE" value="Typo" />
+    <MESSAGE value="Added user_sessions table to SQL, updated games table, and combined flask and bcrypt into flask-bcrypt in requirements.txt" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added user_sessions table to SQL, updated games table, and combined flask and bcrypt into flask-bcrypt in requirements.txt" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Gaming_Webstore_App$Gaming_Webstore_App.coverage" NAME="Gaming-Webstore-App Coverage Results" MODIFIED="1768908771430" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/Gaming_Webstore_App$Gaming_Webstore_App.coverage" NAME="Gaming-Webstore-App Coverage Results" MODIFIED="1768925001508" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
   </component>
 </project>
