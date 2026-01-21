@@ -11,8 +11,20 @@ def hash_password(password: str) -> str:
 
 def check_password(password: str, hashed: str) -> bool:
     """Check if password matches the hashed version."""
-    return bcrypt.check_password_hash(hashed, password)
+    print(f"check_password called")
+    print(f"  Password type: {type(password)}, value: {password}")
+    print(f"  Hashed type: {type(hashed)}, value: {hashed[:20]}...")
+    print(f"  Hashed length: {len(hashed)}")
 
+    try:
+        result = bcrypt.check_password_hash(hashed, password)
+        print(f"  Result: {result}")
+        return result
+    except Exception as e:
+        print(f"  Exception in check_password: {e}")
+        import traceback
+        traceback.print_exc()
+        raise
 
 def get_user_by_email(email: str):
     """Retrieve a user by email."""
