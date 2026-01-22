@@ -1,13 +1,13 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash
-from app.services import get_user_by_email, create_user, check_password, get_user_by_username
+from flask import Blueprint, render_template, request, redirect, url_for, session
+from app.services import get_user_by_email, create_user, check_password, get_user_by_username, get_all_games
 
 main_bp = Blueprint("main", __name__)
 
 
 @main_bp.route("/")
 def home():
-    return render_template("home.html")
-
+    games = get_all_games()
+    return render_template("home.html", games=games)
 
 @main_bp.route("/login", methods=["GET", "POST"])
 def login():
@@ -50,25 +50,49 @@ def login():
 @main_bp.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        username = request.form.get("username")
-        email = request.form.get("email")
-        password = request.form.get("password")
-        full_name = request.form.get("full_name")
-
-        # Check if user already exists
-        if get_user_by_email(email):
-            return render_template("register.html", error="Email already registered"), 400
-
-        if get_user_by_username(username):
-            return render_template("register.html", error="Username already taken"), 400
-
-        # Create new user
         try:
+            username = request.form.get("username")
+            email = request.form.get("email")
+            password = request.form.get("password")
+            confirm_password = request.form.get("confirm_password")
+            full_name = request.form.get("full_name")
+
+            print(f"Registration attempt - Username: {username}, Email: {email}")
+            print(f"Password: '{password}', Confirm: '{confirm_password}'")
+
+            # Validate password confirmation
+            if password != confirm_password:
+                print("Password mismatch")
+                return render_template("register.html", error="Passwords do not match"), 400
+
+            # Validate password length
+            if len(password) < 8:
+                print("Password too short")
+                return render_template("register.html", error="Password must be at least 8 characters"), 400
+
+            # Check if user already exists
+            print("Checking if user exists...")
+            if get_user_by_email(email):
+                print("Email already exists")
+                return render_template("register.html", error="Email already registered"), 400
+
+            if get_user_by_username(username):
+                print("Username already exists")
+                return render_template("register.html", error="Username already taken"), 400
+
+            # Create new user
+            print("Creating new user...")
             create_user(username, email, password, full_name)
+            print("User created successfully")
+
+            # Use flash message and redirect instead
             return redirect(url_for("main.login"))
+
         except Exception as e:
-            print(f"Error creating user: {e}")
-            return render_template("register.html", error="Registration failed"), 500
+            print(f"REGISTRATION ERROR: {e}")
+            import traceback
+            traceback.print_exc()
+            return render_template("register.html", error="Registration failed. Please try again."), 500
 
     return render_template("register.html")
 
@@ -77,3 +101,7 @@ def register():
 def logout():
     session.clear()
     return redirect(url_for("main.home"))
+
+@main_bp.route('/add-to-library/<int:game_id>', methods=['POST'])
+def add_to_library(game_id):
+    return redirect(url_for('main.login'))

@@ -16,6 +16,7 @@ class User(db.Model, UserMixin):
     sessions = db.relationship('UserSession', backref='user', lazy=True, cascade='all, delete-orphan')
     library = db.relationship('UserLibrary', backref='user', lazy=True, cascade='all, delete-orphan')
 
+
 class Game(db.Model):
     __tablename__ = 'games'
 
@@ -23,6 +24,7 @@ class Game(db.Model):
     title = db.Column(db.String(255), unique=True, nullable=False)
     platform = db.Column(db.String(50))
     price = db.Column(db.Numeric(6, 2))
+    release_date = db.Column(db.Date)  # Add this line
 
     # Relationships
     library_entries = db.relationship('UserLibrary', backref='game', lazy=True, cascade='all, delete-orphan')

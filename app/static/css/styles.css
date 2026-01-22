@@ -15,7 +15,7 @@ body {
 
 .container {
     width: 100%;
-    max-width: 800px;
+    max-width: 1200px;
     padding: 40px;
 }
 
@@ -24,6 +24,7 @@ nav {
     justify-content: center;
     gap: 20px;
     margin-bottom: 30px;
+    flex-wrap: wrap;
 }
 
 nav a {
@@ -32,7 +33,11 @@ nav a {
     font-weight: bold;
 }
 
-nav a {
+nav a:hover {
+    color: #9ad0ff;
+}
+
+nav span {
     color: #9ad0ff;
 }
 
@@ -65,6 +70,8 @@ input {
     margin-bottom: 15px;
     border: none;
     border-radius: 4px;
+    background-color: #1f2a44;
+    color: #e6f0ff;
 }
 
 button {
@@ -75,6 +82,7 @@ button {
     border-radius: 4px;
     font-weight: bold;
     cursor: pointer;
+    color: #0b0f1a;
 }
 
 button:hover {
@@ -86,4 +94,62 @@ hr {
     height: 1px;
     background: #1f2a44;
     margin: 20px 0;
+}
+
+/* Games Grid Styles */
+.games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.game-card {
+    background-color: #12172a;
+    border: 1px solid #1f2a44;
+    border-radius: 8px;
+    padding: 20px;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.game-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(108, 182, 255, 0.2);
+    border-color: #6cb6ff;
+}
+
+.game-card h3 {
+    margin-top: 0;
+    color: #6cb6ff;
+    font-size: 1.1em;
+    text-align: left;
+}
+
+.game-card p {
+    margin: 8px 0;
+    color: #9ad0ff;
+    text-align: left;
+    font-size: 0.9em;
+}
+
+.game-card button {
+    width: 100%;
+    margin-top: 10px;
+    padding: 8px;
+}
+
+.game-card a {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 10px;
+    background-color: #1f2a44;
+    color: #6cb6ff;
+    text-decoration: none;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+.game-card a:hover {
+    background-color: #2a3a5a;
 }

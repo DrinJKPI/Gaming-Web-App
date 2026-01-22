@@ -1,5 +1,5 @@
 from app import bcrypt, db
-from app.models import User
+from app.models import User, Game
 
 users = {}
 
@@ -51,3 +51,7 @@ def create_user(username: str, email: str, password: str, full_name: str = None)
     db.session.commit()
 
     return new_user
+
+def get_all_games():
+    """Retrieve all games."""
+    return Game.query.all()
