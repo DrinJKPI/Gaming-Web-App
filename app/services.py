@@ -1,5 +1,5 @@
 from app import bcrypt, db
-from app.models import User, Game
+from app.models import User, Game, UserLibrary
 
 users = {}
 
@@ -55,3 +55,44 @@ def create_user(username: str, email: str, password: str, full_name: str = None)
 def get_all_games():
     """Retrieve all games."""
     return Game.query.all()
+
+
+def get_game_by_id(game_id: int):
+    """Retrieve a game by ID."""
+    return Game.query.get(game_id)
+
+
+def add_game_to_library(user_id: int, game_id: int, platform: str = None):
+    """Add a game to user's library."""
+    # Check if already in library
+    existing = UserLibrary.query.filter_by(user_id=user_id, game_id=game_id).first()
+    if existing:
+        return None
+
+    library_entry = UserLibrary(
+        user_id=user_id,
+        game_id=game_id,
+        platform=platform
+    )
+
+    db.session.add(library_entry)
+    db.session.commit()
+
+    return library_entry
+
+
+def get_user_library(user_id: int):
+    """Get all games in user's library."""
+    return UserLibrary.query.filter_by(user_id=user_id).all()
+
+
+def remove_game_from_library(user_id: int, game_id: int):
+    """Remove a game from user's library."""
+    library_entry = UserLibrary.query.filter_by(user_id=user_id, game_id=game_id).first()
+
+    if not library_entry:
+        return False
+
+    db.session.delete(library_entry)
+    db.session.commit()
+    return True

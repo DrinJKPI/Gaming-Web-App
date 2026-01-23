@@ -19,9 +19,11 @@ body {
     padding: 40px;
 }
 
+/* Navigation */
 nav {
     display: flex;
     justify-content: center;
+    align-items: center;
     gap: 20px;
     margin-bottom: 30px;
     flex-wrap: wrap;
@@ -31,6 +33,7 @@ nav a {
     color: #6cb6ff;
     text-decoration: none;
     font-weight: bold;
+    transition: color 0.3s;
 }
 
 nav a:hover {
@@ -41,16 +44,28 @@ nav span {
     color: #9ad0ff;
 }
 
+/* Headings */
 h1, h2, h3 {
     text-align: center;
     color: #6cb6ff;
 }
 
+h1 {
+    margin-bottom: 10px;
+}
+
+h2 {
+    margin-top: 40px;
+    margin-bottom: 20px;
+}
+
+/* Paragraphs */
 p {
     line-height: 1.6;
     text-align: center;
 }
 
+/* Forms */
 form {
     max-width: 400px;
     margin: 30px auto;
@@ -61,9 +76,13 @@ form {
 
 label {
     font-size: 0.9em;
+    display: block;
+    margin-bottom: 5px;
 }
 
-input {
+input[type="text"],
+input[type="email"],
+input[type="password"] {
     width: 100%;
     padding: 10px;
     margin-top: 5px;
@@ -74,7 +93,12 @@ input {
     color: #e6f0ff;
 }
 
-button {
+input::placeholder {
+    color: #7a8a9e;
+}
+
+button,
+input[type="submit"] {
     width: 100%;
     padding: 10px;
     background-color: #6cb6ff;
@@ -83,20 +107,23 @@ button {
     font-weight: bold;
     cursor: pointer;
     color: #0b0f1a;
+    transition: background-color 0.3s;
 }
 
-button:hover {
+button:hover,
+input[type="submit"]:hover {
     background-color: #9ad0ff;
 }
 
+/* Horizontal Rule */
 hr {
     border: 0;
     height: 1px;
     background: #1f2a44;
-    margin: 20px 0;
+    margin: 30px 0;
 }
 
-/* Games Grid Styles */
+/* Games Grid */
 .games-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -120,6 +147,7 @@ hr {
 
 .game-card h3 {
     margin-top: 0;
+    margin-bottom: 15px;
     color: #6cb6ff;
     font-size: 1.1em;
     text-align: left;
@@ -132,10 +160,17 @@ hr {
     font-size: 0.9em;
 }
 
+.game-card form {
+    width: 100%;
+    margin: 10px 0 0 0;
+    padding: 0;
+    background: transparent;
+}
+
 .game-card button {
     width: 100%;
-    margin-top: 10px;
-    padding: 8px;
+    margin: 0;
+    padding: 10px;
 }
 
 .game-card a {
@@ -148,8 +183,105 @@ hr {
     text-decoration: none;
     border-radius: 4px;
     margin-top: 10px;
+    transition: background-color 0.3s;
 }
 
 .game-card a:hover {
     background-color: #2a3a5a;
+}
+
+/* Error and Success Messages */
+p[style*="color: red"],
+p[style*="color: green"] {
+    padding: 15px;
+    border-radius: 4px;
+    margin: 20px 0;
+}
+
+p[style*="color: red"] {
+    background-color: rgba(255, 100, 100, 0.1);
+    border: 1px solid rgba(255, 100, 100, 0.3);
+}
+
+p[style*="color: green"] {
+    background-color: rgba(100, 255, 100, 0.1);
+    border: 1px solid rgba(100, 255, 100, 0.3);
+}
+
+/* Library-specific styles */
+.library-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.library-card {
+    background-color: #12172a;
+    border: 1px solid #1f2a44;
+    border-radius: 8px;
+    padding: 20px;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.library-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(108, 182, 255, 0.2);
+    border-color: #6cb6ff;
+}
+
+.library-card h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #6cb6ff;
+    font-size: 1.1em;
+    text-align: left;
+}
+
+.library-card p {
+    margin: 8px 0;
+    color: #9ad0ff;
+    text-align: left;
+    font-size: 0.9em;
+}
+
+.library-card form {
+    width: 100%;
+    margin: 10px 0 0 0;
+    padding: 0;
+    background: transparent;
+}
+
+.library-card button {
+    width: 100%;
+    margin: 0;
+    padding: 10px;
+    background-color: #ff6b6b;
+}
+
+.library-card button:hover {
+    background-color: #ff5252;
+}
+
+.empty-library {
+    text-align: center;
+    padding: 40px;
+    background-color: #12172a;
+    border-radius: 8px;
+    margin-top: 30px;
+}
+
+.empty-library p {
+    color: #7a8a9e;
+    margin-bottom: 20px;
+}
+
+.empty-library a {
+    color: #6cb6ff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.empty-library a:hover {
+    color: #9ad0ff;
 }

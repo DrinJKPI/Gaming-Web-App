@@ -13,6 +13,7 @@
         <a href="{{ url_for('main.home') }}">Home</a>
 
         {% if session.get("username") %}
+            <a href="{{ url_for('main.library') }}">My Library</a>
             <span>Logged in as {{ session["username"] }}</span>
             <a href="{{ url_for('main.logout') }}">Logout</a>
         {% else %}

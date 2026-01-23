@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>My Game Library</h1>
+
+{% if not session.get("username") %}
+    <div class="empty-library">
+        <p>You need to be logged in to view your library.</p>
+        <a href="{{ url_for('main.login') }}">Login to access your library</a>
+    </div>
+{% elif library_games %}
+    <p>You have {{ library_games|length }} game(s) in your library</p>
+    
+    <div class="library-grid">
+        {% for entry in library_games %}
+            <div class="library-card">
+                <h3>{{ entry.game.title }}</h3>
+                <p><strong>Platform:</strong> {{ entry.platform or entry.game.platform }}</p>
+                <p><strong>Price:</strong> ${{ "%.2f"|format(entry.game.price) }}</p>
+                <p><strong>Released:</strong> {{ entry.game.release_date.strftime('%B %d, %Y') if entry.game.release_date else 'TBA' }}</p>
+                
+                <form method="post" action="{{ url_for('main.remove_from_library', game_id=entry.game_id) }}">
+                    <button type="submit">Remove from Library</button>
+                </form>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-library">
+        <p>Your library is empty. Start adding games!</p>
+        <a href="{{ url_for('main.home') }}">Browse Games</a>
+    </div>
+{% endif %}
+
+{% endblock %}

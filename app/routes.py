@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session
-from app.services import get_user_by_email, create_user, check_password, get_user_by_username, get_all_games
+from app.services import get_user_by_email, create_user, check_password, get_user_by_username, get_all_games, add_game_to_library, get_game_by_id, get_user_library, remove_game_from_library
 
 main_bp = Blueprint("main", __name__)
 
@@ -102,6 +102,72 @@ def logout():
     session.clear()
     return redirect(url_for("main.home"))
 
-@main_bp.route('/add-to-library/<int:game_id>', methods=['POST'])
+@main_bp.route("/add-to-library/<int:game_id>", methods=["POST"])
 def add_to_library(game_id):
-    return redirect(url_for('main.login'))
+    # Check if user is logged in
+    if "user_id" not in session:
+        return redirect(url_for("main.login"))
+
+    user_id = session["user_id"]
+
+    try:
+        # Get the game to find its platform
+        game = get_game_by_id(game_id)
+        if not game:
+            return "Game not found", 404
+
+        # Add game to user's library
+        result = add_game_to_library(user_id, game_id, game.platform)
+
+        if result is None:
+            # Game already in library
+            print(f"Game {game_id} already in library for user {user_id}")
+        else:
+            print(f"Successfully added game {game_id} to library for user {user_id}")
+
+        return redirect(url_for("main.home"))
+
+    except Exception as e:
+        print(f"Error adding game to library: {e}")
+        import traceback
+        traceback.print_exc()
+        return "Error adding game to library", 500
+
+
+@main_bp.route("/library")
+def library():
+    # Check if user is logged in
+    if "user_id" not in session:
+        return render_template("library.html")
+
+    user_id = session["user_id"]
+
+    # Get user's library
+    library_games = get_user_library(user_id)
+
+    return render_template("library.html", library_games=library_games)
+
+
+@main_bp.route("/remove-from-library/<int:game_id>", methods=["POST"])
+def remove_from_library(game_id):
+    # Check if user is logged in
+    if "user_id" not in session:
+        return redirect(url_for("main.login"))
+
+    user_id = session["user_id"]
+
+    try:
+        result = remove_game_from_library(user_id, game_id)
+
+        if result:
+            print(f"Successfully removed game {game_id} from library for user {user_id}")
+        else:
+            print(f"Game {game_id} not found in library for user {user_id}")
+
+        return redirect(url_for("main.library"))
+
+    except Exception as e:
+        print(f"Error removing game from library: {e}")
+        import traceback
+        traceback.print_exc()
+        return "Error removing game from library", 500
