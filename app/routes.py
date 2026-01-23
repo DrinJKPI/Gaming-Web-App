@@ -1,13 +1,24 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session
-from app.services import get_user_by_email, create_user, check_password, get_user_by_username, get_all_games, add_game_to_library, get_game_by_id, get_user_library, remove_game_from_library
+from app.services import get_user_by_email, create_user, check_password, get_user_by_username, get_all_games, \
+    add_game_to_library, get_game_by_id, get_user_library, remove_game_from_library
 
 main_bp = Blueprint("main", __name__)
 
 
 @main_bp.route("/")
 def home():
+    # Get all games to display on homepage
     games = get_all_games()
-    return render_template("home.html", games=games)
+
+    # If user is logged in, get their library to check which games they own
+    user_library_game_ids = []
+    if "user_id" in session:
+        user_id = session["user_id"]
+        user_library = get_user_library(user_id)
+        user_library_game_ids = [entry.game_id for entry in user_library]
+
+    return render_template("home.html", games=games, user_library_game_ids=user_library_game_ids)
+
 
 @main_bp.route("/login", methods=["GET", "POST"])
 def login():
@@ -85,7 +96,6 @@ def register():
             create_user(username, email, password, full_name)
             print("User created successfully")
 
-            # Use flash message and redirect instead
             return redirect(url_for("main.login"))
 
         except Exception as e:
@@ -101,6 +111,21 @@ def register():
 def logout():
     session.clear()
     return redirect(url_for("main.home"))
+
+
+@main_bp.route("/library")
+def library():
+    # Check if user is logged in
+    if "user_id" not in session:
+        return render_template("library.html")
+
+    user_id = session["user_id"]
+
+    # Get user's library
+    library_games = get_user_library(user_id)
+
+    return render_template("library.html", library_games=library_games)
+
 
 @main_bp.route("/add-to-library/<int:game_id>", methods=["POST"])
 def add_to_library(game_id):
@@ -132,20 +157,6 @@ def add_to_library(game_id):
         import traceback
         traceback.print_exc()
         return "Error adding game to library", 500
-
-
-@main_bp.route("/library")
-def library():
-    # Check if user is logged in
-    if "user_id" not in session:
-        return render_template("library.html")
-
-    user_id = session["user_id"]
-
-    # Get user's library
-    library_games = get_user_library(user_id)
-
-    return render_template("library.html", library_games=library_games)
 
 
 @main_bp.route("/remove-from-library/<int:game_id>", methods=["POST"])

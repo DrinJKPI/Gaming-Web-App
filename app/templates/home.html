@@ -36,9 +36,13 @@
                 <p><strong>Released:</strong> {{ game.release_date.strftime('%B %d, %Y') if game.release_date else 'TBA' }}</p>
 
                 {% if session.get("user_id") %}
-                    <form method="post" action="{{ url_for('main.add_to_library', game_id=game.game_id) }}" style="display: inline;">
-                        <button type="submit">Add to Library</button>
-                    </form>
+                    {% if game.game_id in user_library_game_ids %}
+                        <button disabled style="background-color: #4a5568; cursor: not-allowed;">Already in Library</button>
+                    {% else %}
+                        <form method="post" action="{{ url_for('main.add_to_library', game_id=game.game_id) }}">
+                            <button type="submit">Add to Library</button>
+                        </form>
+                    {% endif %}
                 {% else %}
                     <a href="{{ url_for('main.login') }}">Login to Add</a>
                 {% endif %}
