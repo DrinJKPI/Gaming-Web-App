@@ -15,11 +15,15 @@
     <div class="library-grid">
         {% for entry in library_games %}
             <div class="library-card">
+                {% if entry.game.background_image %}
+                    <img src="{{ entry.game.background_image }}" alt="{{ entry.game.title }}" style="width: 100%; border-radius: 8px; margin-bottom: 10px;">
+                {% endif %}
+
                 <h3>{{ entry.game.title }}</h3>
                 <p><strong>Platform:</strong> {{ entry.platform or entry.game.platform }}</p>
                 <p><strong>Price:</strong> ${{ "%.2f"|format(entry.game.price) }}</p>
-                <p><strong>Released:</strong> {{ entry.game.release_date.strftime('%B %d, %Y') if entry.game.release_date else 'TBA' }}</p>
-                
+                <p><strong>Released:</strong> {{ entry.game.release_date if entry.game.release_date else 'TBA' }}</p>
+
                 <form method="post" action="{{ url_for('main.remove_from_library', game_id=entry.game_id) }}">
                     <button type="submit">Remove from Library</button>
                 </form>

@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session
 from app.services import get_user_by_email, create_user, check_password, get_user_by_username, get_all_games, add_game_to_library, get_game_by_id, get_user_library, remove_game_from_library
 from app.game_metadata_service import get_all_games_from_mongodb, get_game_by_id_from_mongodb
+from cloud_functions.generate_recommendations import generate_recommendations
 
 main_bp = Blueprint("main", __name__)
 
@@ -121,10 +122,21 @@ def library():
 
     user_id = session["user_id"]
 
-    # Get user's library
-    library_games = get_user_library(user_id)
+    # Get user's library from MySQL
+    library_entries = get_user_library(user_id)
 
-    return render_template("library.html", library_games=library_games)
+    # Enrich with MongoDB data
+    enriched_library = []
+    for entry in library_entries:
+        mongo_game = get_game_by_id_from_mongodb(entry.game_id)
+        if mongo_game:
+            # Add MongoDB data to the entry
+            entry.game.background_image = mongo_game.get('background_image')
+            entry.game.genres = mongo_game.get('genres', [])
+            entry.game.rating = mongo_game.get('rating')
+        enriched_library.append(entry)
+
+    return render_template("library.html", library_games=enriched_library)
 
 
 @main_bp.route("/add-to-library/<int:game_id>", methods=["POST"])
@@ -182,3 +194,25 @@ def remove_from_library(game_id):
         import traceback
         traceback.print_exc()
         return "Error removing game from library", 500
+
+
+@main_bp.route("/recommendations")
+def recommendations():
+    # Check if user is logged in
+    if "user_id" not in session:
+        return render_template("recommendations.html")
+
+    user_id = session["user_id"]
+
+    # Get user's library for checking owned games
+    user_library = get_user_library(user_id)
+    user_library_game_ids = [entry.game_id for entry in user_library]
+
+    # Generate recommendations
+    recommended_games = generate_recommendations(user_id, limit=5)
+
+    return render_template(
+        "recommendations.html",
+        recommendations=recommended_games,
+        user_library_game_ids=user_library_game_ids
+    )

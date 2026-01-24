@@ -1,10 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-</body>
-</html>
+{% block content %}
+
+<h1>Recommended Games for You</h1>
+
+{% if not session.get("username") %}
+    <div class="empty-library">
+        <p>You need to be logged in to see personalized recommendations.</p>
+        <a href="{{ url_for('main.login') }}">Login to see recommendations</a>
+    </div>
+{% elif recommendations %}
+    <p>Based on your library, we think you'll enjoy these games:</p>
+    
+    <div class="games-grid">
+        {% for game in recommendations %}
+            <div class="game-card">
+                {% if game.background_image %}
+                    <img src="{{ game.background_image }}" alt="{{ game.title }}" style="width: 100%; border-radius: 8px; margin-bottom: 10px;">
+                {% endif %}
+                
+                <h3>{{ game.title }}</h3>
+                <p><strong>Platform:</strong> {{ game.platform }}</p>
+                <p><strong>Price:</strong> ${{ "%.2f"|format(game.price) }}</p>
+                <p><strong>Genres:</strong> {{ ', '.join(game.genres[:3]) if game.genres else 'N/A' }}</p>
+                <p><strong>Rating:</strong> {{ "%.1f"|format(game.rating) if game.rating else 'N/A' }}/5</p>
+                
+                {% if game.mysql_game_id in user_library_game_ids %}
+                    <button disabled style="background-color: #4a5568; cursor: not-allowed;">Already in Library</button>
+                {% else %}
+                    <form method="post" action="{{ url_for('main.add_to_library', game_id=game.mysql_game_id) }}">
+                        <button type="submit">Add to Library</button>
+                    </form>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-library">
+        <p>We need more games in your library to generate recommendations.</p>
+        <p>Add at least one game to get personalized suggestions!</p>
+        <a href="{{ url_for('main.home') }}">Browse Games</a>
+    </div>
+{% endif %}
+
+{% endblock %}

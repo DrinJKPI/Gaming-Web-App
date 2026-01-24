@@ -30,6 +30,10 @@
     <div class="games-grid">
         {% for game in games %}
             <div class="game-card">
+                {% if game.background_image %}
+                    <img src="{{ game.background_image }}" alt="{{ game.title }}" style="width: 100%; border-radius: 8px; margin-bottom: 10px;">
+                {% endif %}
+
                 <h3>{{ game.title }}</h3>
                 <p><strong>Platform:</strong> {{ game.platform }}</p>
                 <p><strong>Price:</strong> ${{ "%.2f"|format(game.price) }}</p>
