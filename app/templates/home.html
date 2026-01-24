@@ -33,13 +33,13 @@
                 <h3>{{ game.title }}</h3>
                 <p><strong>Platform:</strong> {{ game.platform }}</p>
                 <p><strong>Price:</strong> ${{ "%.2f"|format(game.price) }}</p>
-                <p><strong>Released:</strong> {{ game.release_date.strftime('%B %d, %Y') if game.release_date else 'TBA' }}</p>
+                <p><strong>Released:</strong> {{ game.release_date if game.release_date else 'TBA' }}</p>
 
                 {% if session.get("user_id") %}
-                    {% if game.game_id in user_library_game_ids %}
+                    {% if game.mysql_game_id in user_library_game_ids %}
                         <button disabled style="background-color: #4a5568; cursor: not-allowed;">Already in Library</button>
                     {% else %}
-                        <form method="post" action="{{ url_for('main.add_to_library', game_id=game.game_id) }}">
+                        <form method="post" action="{{ url_for('main.add_to_library', game_id=game.mysql_game_id) }}">
                             <button type="submit">Add to Library</button>
                         </form>
                     {% endif %}

@@ -1,14 +1,14 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session
-from app.services import get_user_by_email, create_user, check_password, get_user_by_username, get_all_games, \
-    add_game_to_library, get_game_by_id, get_user_library, remove_game_from_library
+from app.services import get_user_by_email, create_user, check_password, get_user_by_username, get_all_games, add_game_to_library, get_game_by_id, get_user_library, remove_game_from_library
+from app.game_metadata_service import get_all_games_from_mongodb, get_game_by_id_from_mongodb
 
 main_bp = Blueprint("main", __name__)
 
 
 @main_bp.route("/")
 def home():
-    # Get all games to display on homepage
-    games = get_all_games()
+    # Get all games from MongoDB
+    games = get_all_games_from_mongodb()
 
     # If user is logged in, get their library to check which games they own
     user_library_game_ids = []
@@ -136,13 +136,13 @@ def add_to_library(game_id):
     user_id = session["user_id"]
 
     try:
-        # Get the game to find its platform
-        game = get_game_by_id(game_id)
+        # Get the game from MongoDB using mysql_game_id
+        game = get_game_by_id_from_mongodb(game_id)
         if not game:
             return "Game not found", 404
 
-        # Add game to user's library
-        result = add_game_to_library(user_id, game_id, game.platform)
+        # Add game to user's library (using MySQL game_id)
+        result = add_game_to_library(user_id, game_id, game.get('platform'))
 
         if result is None:
             # Game already in library

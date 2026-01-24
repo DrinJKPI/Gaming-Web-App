@@ -1,7 +1,8 @@
-flask-bcrypt
+Flask
+Flask-SQLAlchemy
+Flask-Bcrypt
 pymysql
-cryptography
-flask-sqlalchemy
-flask
-flask-login
-bcrypt
+pymongo
+dnspython
+python-dotenv
+requests
