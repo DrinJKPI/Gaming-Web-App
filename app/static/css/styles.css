@@ -292,3 +292,136 @@ button[disabled] {
     cursor: not-allowed !important;
     opacity: 0.6;
 }
+
+/* Search and Filter Section */
+.search-filter-section {
+    background-color: #12172a;
+    padding: 30px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+.search-box {
+    margin-bottom: 25px;
+}
+
+#searchInput {
+    width: 100%;
+    max-width: 600px;
+    padding: 15px 20px;
+    font-size: 16px;
+    border: 2px solid #1f2a44;
+    border-radius: 8px;
+    background-color: #0b0f1a;
+    color: #e6f0ff;
+    transition: border-color 0.3s;
+}
+
+#searchInput:focus {
+    outline: none;
+    border-color: #6cb6ff;
+}
+
+#searchInput::placeholder {
+    color: #7a8a9e;
+}
+
+/* Filters Container */
+.filters-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    margin-bottom: 20px;
+}
+
+.filter-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.filter-group h4 {
+    color: #6cb6ff;
+    margin-bottom: 12px;
+    font-size: 16px;
+    text-align: left;
+}
+
+.filter-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #9ad0ff;
+    cursor: pointer;
+    font-size: 14px;
+    text-align: left;
+    transition: color 0.2s;
+}
+
+.filter-group label:hover {
+    color: #e6f0ff;
+}
+
+.filter-group input[type="checkbox"] {
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+/* Clear Filters Button */
+.clear-btn {
+    background-color: #1f2a44;
+    color: #9ad0ff;
+    border: 1px solid #6cb6ff;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+    align-self: flex-start;
+}
+
+.clear-btn:hover {
+    background-color: #6cb6ff;
+    color: #0b0f1a;
+}
+
+/* Results Info */
+.results-info {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.results-info p {
+    color: #9ad0ff;
+    font-size: 14px;
+}
+
+.results-info strong {
+    color: #6cb6ff;
+}
+
+/* No Results Message */
+#noResults {
+    background-color: #12172a;
+    border: 2px dashed #1f2a44;
+    border-radius: 8px;
+    color: #7a8a9e;
+}
+
+/* Game Card Visibility (for filtering) */
+.game-card.hidden {
+    display: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .filters-container {
+        flex-direction: column;
+    }
+
+    .filter-group {
+        width: 100%;
+    }
+
+    #searchInput {
+        font-size: 14px;
+    }
+}

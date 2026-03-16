@@ -1,60 +1,103 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Welcome to the Gaming Recommendations Website</h1>
+<h1>Welcome to the Gaming Webstore</h1>
 
 {% if session.get("username") %}
-    <p>Welcome back, <strong>{{ session["username"] }}</strong>! Check out our latest games below.</p>
-{% else %}
-    <p>Discover and purchase the latest games across all platforms.</p>
+    <p>Welcome back, <strong>{{ session["username"] }}</strong>!</p>
 {% endif %}
 
-<h3>What is this website?</h3>
-<p>
-  The Gaming Webstore is a cloud-based platform designed to help you
-  discover, compare, and purchase games across all platforms.
-</p>
+<!-- NEW: Search and Filter Section -->
+<div class="search-filter-section">
+    <!-- Text Search -->
+    <div class="search-box">
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="Search games by title..."
+            autocomplete="off"
+        >
+    </div>
 
-<h3>How do we do this?</h3>
-<p>
-  By integrating data from popular platforms such as <strong>Steam</strong> and
-  <strong>Epic Games</strong>, the system provides personalized game recommendations
-  based on your existing library and recent searches.
-</p>
+    <!-- Filters Container -->
+    <div class="filters-container">
+
+        <!-- Genre Filter -->
+        <div class="filter-group">
+            <h4>Genre</h4>
+            <div id="genreFilters">
+                <!-- Dynamically populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Platform Filter -->
+        <div class="filter-group">
+            <h4>Platform</h4>
+            <div id="platformFilters">
+                <!-- Dynamically populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Price Range Filter -->
+        <div class="filter-group">
+            <h4>Price Range</h4>
+            <div id="priceFilters">
+                <label><input type="checkbox" class="price-filter" value="free"> Free</label>
+                <label><input type="checkbox" class="price-filter" value="0-20"> $0 - $20</label>
+                <label><input type="checkbox" class="price-filter" value="20-40"> $20 - $40</label>
+                <label><input type="checkbox" class="price-filter" value="40-60"> $40 - $60</label>
+                <label><input type="checkbox" class="price-filter" value="60+"> $60+</label>
+            </div>
+        </div>
+
+        <!-- Clear Filters Button -->
+        <button id="clearFilters" class="clear-btn">Clear All Filters</button>
+    </div>
+
+    <!-- Results Counter -->
+    <div class="results-info">
+        <p id="resultsCount">Showing <strong id="visibleCount">0</strong> of <strong id="totalCount">0</strong> games</p>
+    </div>
+</div>
 
 <hr>
 
-<h2>Featured Games (2023-2025)</h2>
+<!-- Existing Games Grid -->
+<div class="games-grid" id="gamesGrid">
+    {% for game in games %}
+        <div class="game-card"
+             data-title="{{ game.title | lower }}"
+             data-genres="{{ game.genres | join(',') | lower }}"
+             data-platform="{{ game.platform | lower }}"
+             data-price="{{ game.price }}">
 
-{% if games %}
-    <div class="games-grid">
-        {% for game in games %}
-            <div class="game-card">
-                {% if game.background_image %}
-                    <img src="{{ game.background_image }}" alt="{{ game.title }}" style="width: 100%; border-radius: 8px; margin-bottom: 10px;">
-                {% endif %}
+            {% if game.background_image %}
+                <img src="{{ game.background_image }}" alt="{{ game.title }}" loading="lazy">
+            {% endif %}
 
-                <h3>{{ game.title }}</h3>
-                <p><strong>Platform:</strong> {{ game.platform }}</p>
-                <p><strong>Price:</strong> ${{ "%.2f"|format(game.price) }}</p>
-                <p><strong>Released:</strong> {{ game.release_date if game.release_date else 'TBA' }}</p>
+            <h3>{{ game.title }}</h3>
+            <p><strong>Platform:</strong> {{ game.platform }}</p>
+            <p><strong>Price:</strong> ${{ "%.2f"|format(game.price) }}</p>
+            <p><strong>Genres:</strong> {{ ', '.join(game.genres[:3]) if game.genres else 'N/A' }}</p>
 
-                {% if session.get("user_id") %}
-                    {% if game.mysql_game_id in user_library_game_ids %}
-                        <button disabled style="background-color: #4a5568; cursor: not-allowed;">Already in Library</button>
-                    {% else %}
-                        <form method="post" action="{{ url_for('main.add_to_library', game_id=game.mysql_game_id) }}">
-                            <button type="submit">Add to Library</button>
-                        </form>
-                    {% endif %}
+            {% if session.get("user_id") %}
+                {% if game.mysql_game_id in user_library_game_ids %}
+                    <button disabled>Already in Library</button>
                 {% else %}
-                    <a href="{{ url_for('main.login') }}">Login to Add</a>
+                    <form method="post" action="{{ url_for('main.add_to_library', game_id=game.mysql_game_id) }}">
+                        <button type="submit">Add to Library</button>
+                    </form>
                 {% endif %}
-            </div>
-        {% endfor %}
-    </div>
-{% else %}
-    <p>No games available at the moment.</p>
-{% endif %}
+            {% else %}
+                <a href="{{ url_for('main.login') }}">Login to Add</a>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
+
+<!-- No Results Message -->
+<div id="noResults" style="display: none; text-align: center; padding: 40px;">
+    <p>No games match your filters. Try adjusting your search criteria.</p>
+</div>
 
 {% endblock %}

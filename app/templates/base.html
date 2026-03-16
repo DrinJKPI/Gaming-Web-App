@@ -8,7 +8,6 @@
 <body>
 
 <div class="container">
-
     <nav>
         <a href="{{ url_for('main.home') }}">Home</a>
 
@@ -26,8 +25,10 @@
     <hr>
 
     {% block content %}{% endblock %}
-
 </div>
+
+<!-- NEW: Include search JavaScript -->
+<script src="{{ url_for('static', filename='javascript/search.js') }}"></script>
 
 </body>
 </html>
