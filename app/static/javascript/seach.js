@@ -1,6 +1,6 @@
 /**
  * Game Search and Filter System
- * Implements real-time search with multiple filter options
+ * Implements real-time search with multiple filter options for games within the dtatabase
  */
 
 // Wait for DOM to be fully loaded
