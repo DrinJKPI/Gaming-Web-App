@@ -190,6 +190,15 @@ hr {
     background-color: #2a3a5a;
 }
 
+/* Game Card Image */
+.game-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+
 /* Error and Success Messages */
 p[style*="color: red"],
 p[style*="color: green"] {
