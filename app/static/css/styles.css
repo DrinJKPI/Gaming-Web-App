@@ -455,3 +455,14 @@ button[disabled] {
 .google-btn:hover {
     background-color: #357ABD;
 }
+
+.steam-btn {
+    background-color: #1b2838;
+    color: #c6d4df;
+    border: 1px solid #4c6b22;
+    margin-top: 10px;
+}
+
+.steam-btn:hover {
+    background-color: #2a475e;
+}
