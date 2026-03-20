@@ -7,3 +7,6 @@ dnspython
 python-dotenv
 requests
 pytest
+flask-login
+authlib
+python-openid

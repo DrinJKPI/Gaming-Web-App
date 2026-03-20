@@ -434,3 +434,24 @@ button[disabled] {
         font-size: 14px;
     }
 }
+
+.oauth-btn {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: bold;
+    text-decoration: none;
+    margin-top: 10px;
+    transition: background-color 0.3s;
+}
+
+.google-btn {
+    background-color: #4285F4;
+    color: white;
+}
+
+.google-btn:hover {
+    background-color: #357ABD;
+}

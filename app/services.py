@@ -1,5 +1,6 @@
 from app import bcrypt, db
 from app.models import User, Game, UserLibrary
+from datetime import datetime
 
 users = {}
 
@@ -96,3 +97,57 @@ def remove_game_from_library(user_id: int, game_id: int):
     db.session.delete(library_entry)
     db.session.commit()
     return True
+
+def get_or_create_oauth_user(provider, provider_account_id, email, username, access_token):
+    from app.models import User, OAuthAccount
+    from app import db
+
+    # Check if oauth account already exists
+    oauth_account = OAuthAccount.query.filter_by(
+        provider=provider,
+        provider_account_id=provider_account_id
+    ).first()
+
+    if oauth_account:
+        # Update access token
+        oauth_account.access_token = access_token
+        db.session.commit()
+        return oauth_account.user
+
+    # Check if user with this email already exists
+    user = None
+    if email:
+        user = User.query.filter_by(email=email).first()
+
+    # Create new user if doesn't exist
+    if not user:
+        # Generate unique username if taken
+        base_username = username.replace(' ', '').lower()[:50]
+        final_username = base_username
+        counter = 1
+        while User.query.filter_by(username=final_username).first():
+            final_username = f"{base_username}{counter}"
+            counter += 1
+
+        user = User(
+            username=final_username,
+            email=email,
+            password_hash=None,
+            created_at=datetime.utcnow(),
+            is_active=1
+        )
+        db.session.add(user)
+        db.session.flush()
+
+    # Create oauth account link
+    oauth_account = OAuthAccount(
+        user_id=user.user_id,
+        provider=provider,
+        provider_account_id=provider_account_id,
+        access_token=access_token,
+        linked_at=datetime.utcnow()
+    )
+    db.session.add(oauth_account)
+    db.session.commit()
+
+    return user

@@ -12,6 +12,9 @@ def create_app():
     db.init_app(app)
     bcrypt.init_app(app)
 
+    from .oauth import init_oauth
+    init_oauth(app)
+
     # Initialize MongoDB
     from .mongodb import init_mongodb
     init_mongodb(app)
@@ -23,6 +26,10 @@ def create_app():
     # Register the API Blueprint
     from .api_routes import api_bp
     app.register_blueprint(api_bp)
+
+    # Register the Auth Blueprint
+    from .auth_routes import auth_bp
+    app.register_blueprint(auth_bp)
 
     # Debug: Print all registered routes
     print("\nRegistered routes:")

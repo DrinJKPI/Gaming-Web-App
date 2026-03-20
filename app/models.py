@@ -48,3 +48,16 @@ class UserLibrary(db.Model):
 
     def get_id(self):
         return str(self.user_id)
+
+class OAuthAccount(db.Model):
+    __tablename__ = 'oauth_accounts'
+
+    oauth_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False)
+    provider = db.Column(db.Enum('google', 'steam', 'epic'), nullable=False)
+    provider_account_id = db.Column(db.String(255), nullable=False)
+    access_token = db.Column(db.String(500))
+    token_expiry = db.Column(db.DateTime)
+    linked_at = db.Column(db.DateTime)
+
+    user = db.relationship('User', backref='oauth_accounts')
