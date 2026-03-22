@@ -1,17 +1,20 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from app.services import get_user_by_email, create_user, check_password, get_user_by_username, get_all_games, add_game_to_library, get_game_by_id, get_user_library, remove_game_from_library
 from app.game_metadata_service import get_all_games_from_mongodb, get_game_by_id_from_mongodb
 from cloud_functions.generate_recommendations import generate_recommendations
+import logging
+
+logger = logging.getLogger(__name__)
 
 main_bp = Blueprint("main", __name__)
 
 
 @main_bp.route("/")
 def home():
-    # Get all games from MongoDB
+    """Home page — loads all games from MongoDB and checks user library ownership"""
     games = get_all_games_from_mongodb()
 
-    # If user is logged in, get their library to check which games they own
+    # If user is logged in, get their library to check which games they already own
     user_library_game_ids = []
     if "user_id" in session:
         user_id = session["user_id"]
@@ -23,44 +26,34 @@ def home():
 
 @main_bp.route("/login", methods=["GET", "POST"])
 def login():
+    """Handle user login — validates credentials and sets session variables"""
     if request.method == "POST":
         try:
             email = request.form.get("email")
             password = request.form.get("password")
 
-            print(f"Login attempt - Email: {email}")
-
-            # Get user from database
+            # Look up user by email
             user = get_user_by_email(email)
-            print(f"User found: {user}")
 
-            if user:
-                print(f"User is_active: {user.is_active}")
-                print(f"Checking password...")
-                password_match = check_password(password, user.password_hash)
-                print(f"Password match: {password_match}")
+            if user and user.is_active and check_password(password, user.password_hash):
+                # Set session variables on successful login
+                session["user_id"] = user.user_id
+                session["username"] = user.username
+                session["email"] = user.email
+                return redirect(url_for("main.home"))
 
-                if user.is_active and password_match:
-                    session["user_id"] = user.user_id
-                    session["username"] = user.username
-                    session["email"] = user.email
-                    print("Login successful!")
-                    return redirect(url_for("main.home"))
-
-            print("Login failed - invalid credentials")
             return render_template("login.html", error="Invalid credentials"), 401
 
         except Exception as e:
-            print(f"LOGIN ERROR: {e}")
-            import traceback
-            traceback.print_exc()
-            return "Login error - check console", 500
+            logger.error(f"Login error: {e}")
+            return render_template("login.html", error="Login failed. Please try again."), 500
 
     return render_template("login.html")
 
 
 @main_bp.route("/register", methods=["GET", "POST"])
 def register():
+    """Handle user registration — validates input and creates a new user account"""
     if request.method == "POST":
         try:
             username = request.form.get("username")
@@ -69,40 +62,27 @@ def register():
             confirm_password = request.form.get("confirm_password")
             full_name = request.form.get("full_name")
 
-            print(f"Registration attempt - Username: {username}, Email: {email}")
-            print(f"Password: '{password}', Confirm: '{confirm_password}'")
-
             # Validate password confirmation
             if password != confirm_password:
-                print("Password mismatch")
                 return render_template("register.html", error="Passwords do not match"), 400
 
             # Validate password length
             if len(password) < 8:
-                print("Password too short")
                 return render_template("register.html", error="Password must be at least 8 characters"), 400
 
-            # Check if user already exists
-            print("Checking if user exists...")
+            # Check for existing email or username
             if get_user_by_email(email):
-                print("Email already exists")
                 return render_template("register.html", error="Email already registered"), 400
 
             if get_user_by_username(username):
-                print("Username already exists")
                 return render_template("register.html", error="Username already taken"), 400
 
-            # Create new user
-            print("Creating new user...")
+            # Create the new user account
             create_user(username, email, password, full_name)
-            print("User created successfully")
-
             return redirect(url_for("main.login"))
 
         except Exception as e:
-            print(f"REGISTRATION ERROR: {e}")
-            import traceback
-            traceback.print_exc()
+            logger.error(f"Registration error: {e}")
             return render_template("register.html", error="Registration failed. Please try again."), 500
 
     return render_template("register.html")
@@ -110,27 +90,28 @@ def register():
 
 @main_bp.route("/logout")
 def logout():
+    """Clear the user session and redirect to home"""
     session.clear()
     return redirect(url_for("main.home"))
 
 
 @main_bp.route("/library")
 def library():
-    # Check if user is logged in
+    """Display the user's game library, enriched with MongoDB metadata"""
+    # Redirect to library page without data if user is not logged in
     if "user_id" not in session:
         return render_template("library.html")
 
     user_id = session["user_id"]
 
-    # Get user's library from MySQL
+    # Get core library entries from MySQL
     library_entries = get_user_library(user_id)
 
-    # Enrich with MongoDB data
+    # Enrich each entry with additional metadata from MongoDB
     enriched_library = []
     for entry in library_entries:
         mongo_game = get_game_by_id_from_mongodb(entry.game_id)
         if mongo_game:
-            # Add MongoDB data to the entry
             entry.game.background_image = mongo_game.get('background_image')
             entry.game.genres = mongo_game.get('genres', [])
             entry.game.rating = mongo_game.get('rating')
@@ -141,74 +122,57 @@ def library():
 
 @main_bp.route("/add-to-library/<int:game_id>", methods=["POST"])
 def add_to_library(game_id):
-    # Check if user is logged in
+    """Add a game to the logged-in user's library"""
     if "user_id" not in session:
         return redirect(url_for("main.login"))
 
     user_id = session["user_id"]
 
     try:
-        # Get the game from MongoDB using mysql_game_id
+        # Verify the game exists in MongoDB before adding
         game = get_game_by_id_from_mongodb(game_id)
         if not game:
             return "Game not found", 404
 
-        # Add game to user's library (using MySQL game_id)
-        result = add_game_to_library(user_id, game_id, game.get('platform'))
-
-        if result is None:
-            # Game already in library
-            print(f"Game {game_id} already in library for user {user_id}")
-        else:
-            print(f"Successfully added game {game_id} to library for user {user_id}")
-
+        # Add to library using the MySQL game_id
+        add_game_to_library(user_id, game_id, game.get('platform'))
         return redirect(url_for("main.home"))
 
     except Exception as e:
-        print(f"Error adding game to library: {e}")
-        import traceback
-        traceback.print_exc()
+        logger.error(f"Error adding game {game_id} to library: {e}")
         return "Error adding game to library", 500
 
 
 @main_bp.route("/remove-from-library/<int:game_id>", methods=["POST"])
 def remove_from_library(game_id):
-    # Check if user is logged in
+    """Remove a game from the logged-in user's library"""
     if "user_id" not in session:
         return redirect(url_for("main.login"))
 
     user_id = session["user_id"]
 
     try:
-        result = remove_game_from_library(user_id, game_id)
-
-        if result:
-            print(f"Successfully removed game {game_id} from library for user {user_id}")
-        else:
-            print(f"Game {game_id} not found in library for user {user_id}")
-
+        remove_game_from_library(user_id, game_id)
         return redirect(url_for("main.library"))
 
     except Exception as e:
-        print(f"Error removing game from library: {e}")
-        import traceback
-        traceback.print_exc()
+        logger.error(f"Error removing game {game_id} from library: {e}")
         return "Error removing game from library", 500
 
 
 @main_bp.route("/recommendations")
 def recommendations():
-    # Check if user is logged in
+    """Display AI-generated game recommendations for the logged-in user"""
     if "user_id" not in session:
         return render_template("recommendations.html")
 
     user_id = session["user_id"]
 
-    # Get user's library for checking owned games
+    # Get user's library to exclude already owned games from recommendations
     user_library = get_user_library(user_id)
     user_library_game_ids = [entry.game_id for entry in user_library]
 
-    # Generate recommendations
+    # Generate personalised recommendations
     recommended_games = generate_recommendations(user_id, limit=5)
 
     return render_template(
