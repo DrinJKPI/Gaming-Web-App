@@ -4,12 +4,7 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d4f1a1ef-2a76-48ee-b614-39d3056bd2c1" name="Changes" comment="Cleaned up code begins. Adding comments and removing debug statements.">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/generate_hash.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/generate_hash.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routes.py" afterDir="false" />
-    </list>
+    <list default="true" id="d4f1a1ef-2a76-48ee-b614-39d3056bd2c1" name="Changes" comment="Cleaned up code begins. Adding comments and removing debug statements." />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -187,7 +182,7 @@
       <workItem from="1774019138756" duration="12079000" />
       <workItem from="1774187898856" duration="154000" />
       <workItem from="1774188086902" duration="697000" />
-      <workItem from="1774188806014" duration="3388000" />
+      <workItem from="1774188806014" duration="4274000" />
     </task>
     <task id="LOCAL-00001" summary="Typo">
       <option name="closed" value="true" />
@@ -293,7 +288,15 @@
       <option name="project" value="LOCAL" />
       <updated>1774191686361</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Cleaned up code begins. Adding comments and removing debug statements.">
+      <option name="closed" value="true" />
+      <created>1774192607818</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1774192607818</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
