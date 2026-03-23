@@ -42,8 +42,20 @@ def google_callback():
         return redirect(url_for('main.home'))
 
     except Exception as e:
-        flash('Google login failed. Please try again.', 'error')
+        # This will print the error to your PyCharm terminal
+        import traceback
+        print("--- OAUTH ERROR START ---")
+        print(f"Error Type: {type(e).__name__}")
+        print(f"Error Message: {str(e)}")
+        traceback.print_exc()
+        print("--- OAUTH ERROR END ---")
+
+        flash(f'Login failed: {str(e)}', 'error')
         return redirect(url_for('main.login'))
+
+    #except Exception as e:
+    #    flash('Google login failed. Please try again.', 'error')
+    #    return redirect(url_for('main.login'))
 
 
 # ---- Steam OAuth ----

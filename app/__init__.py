@@ -1,40 +1,40 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
-from .config import Config
+from werkzeug.middleware.proxy_fix import ProxyFix
+from app.config import Config
+from app.oauth import init_oauth
+from app.mongodb import init_mongodb
+import os
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
+# Initialize extensions (Keep these outside create_app)
 db = SQLAlchemy()
-bcrypt = Bcrypt()
+bcrypt = Bcrypt() # <--- Initialize it here
 
-def create_app():
+def create_app(config_class=Config):
     app = Flask(__name__)
-    app.config.from_object(Config)
+    app.config.from_object(config_class)
+
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1, x_prefix=1)
+
+    # Initialize Extensions
     db.init_app(app)
-    bcrypt.init_app(app)
-
-    from .oauth import init_oauth
+    bcrypt.init_app(app) # <--- Add this line
     init_oauth(app)
-
-    # Initialize MongoDB
-    from .mongodb import init_mongodb
     init_mongodb(app)
 
-    # Register the main Blueprint
-    from .routes import main_bp
-    app.register_blueprint(main_bp)
+    # Register Blueprints
+    # Note: Using local imports inside the function helps prevent circular errors
+    from app.routes import main_bp
+    from app.auth_routes import auth_bp
+    from app.api_routes import api_bp
 
-    # Register the API Blueprint
-    from .api_routes import api_bp
+    app.register_blueprint(main_bp)
+    app.register_blueprint(auth_bp)
     app.register_blueprint(api_bp)
 
-    # Register the Auth Blueprint
-    from .auth_routes import auth_bp
-    app.register_blueprint(auth_bp)
-
-    # Debug: Print all registered routes
-    print("\nRegistered routes:")
-    for rule in app.url_map.iter_rules():
-        print(f"  {rule.endpoint}: {rule.rule}")
-    print()
+    with app.app_context():
+        db.create_all()
 
     return app

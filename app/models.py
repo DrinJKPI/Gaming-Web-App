@@ -9,8 +9,8 @@ class User(db.Model, UserMixin):
 
     user_id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
-    email = db.Column(db.String(255), unique=True, nullable=False)      # Nullable for OAuth users
-    password_hash = db.Column(db.String(255), nullable=False)           # Nullable for OAuth users
+    email = db.Column(db.String(255), unique=True, nullable=True)      # Nullable for OAuth users
+    password_hash = db.Column(db.String(255), nullable=True)           # Nullable for OAuth users
     full_name = db.Column(db.String(100))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, default=True)

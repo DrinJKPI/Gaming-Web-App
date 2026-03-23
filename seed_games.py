@@ -4,8 +4,9 @@ from app.models import Game
 app = create_app()
 
 with app.app_context():
-    # Clear existing games
-    Game.query.delete()
+    print("Rebuilding database schema...")
+    db.drop_all()  # This deletes all tables (games, user_library, etc.)
+    db.create_all()  # This creates them fresh with the 'release_date' column
 
     # Curated games data (5 from each year: 2025, 2024, 2023)
     games_data = [

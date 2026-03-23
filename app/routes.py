@@ -172,7 +172,7 @@ def recommendations():
     user_library = get_user_library(user_id)
     user_library_game_ids = [entry.game_id for entry in user_library]
 
-    # Generate personalised recommendations
+    # Generate personalized recommendations
     recommended_games = generate_recommendations(user_id, limit=5)
 
     return render_template(
@@ -180,3 +180,9 @@ def recommendations():
         recommendations=recommended_games,
         user_library_game_ids=user_library_game_ids
     )
+
+@main_bp.route('/debug-count')
+def debug_count():
+    from app.models import Game
+    count = Game.query.count()
+    return f"Database has {count} games."

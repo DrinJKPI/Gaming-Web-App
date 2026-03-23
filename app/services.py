@@ -54,13 +54,50 @@ def create_user(username: str, email: str, password: str, full_name: str = None)
     return new_user
 
 def get_all_games():
-    """Retrieve all games."""
-    return Game.query.all()
+    from app.models import Game
+    from app.mongodb import get_mongodb
+
+    mongo_db = get_mongodb()
+    mysql_games = Game.query.all()
+    combined_games = []
+
+    for g in mysql_games:
+        # FIX HERE: use 'is not None'
+        m_info = mongo_db.games.find_one({"title": g.title}) if mongo_db is not None else None
+
+        combined_games.append({
+            "mysql_game_id": g.game_id,
+            "title": g.title,
+            "platform": g.platform,
+            "price": float(g.price) if g.price else 0.0,
+            "background_image": m_info.get("background_image") if m_info else None,
+            "genres": m_info.get("genres", []) if m_info else []
+         })
+    return combined_games
 
 
 def get_game_by_id(game_id: int):
-    """Retrieve a game by ID."""
-    return Game.query.get(game_id)
+    """Retrieve a game by ID and hydrate it with MongoDB metadata."""
+    from app.models import Game
+    from app.mongodb import get_mongodb
+
+    g = Game.query.get(game_id)
+    if not g: return None
+
+    mongo_db = get_mongodb()
+    # FIX HERE: use 'is not None'
+    m_info = mongo_db.games.find_one({"title": g.title}) if mongo_db is not None else None
+
+    # 4. Return the Dictionary format that matches your home.html/templates
+    return {
+        "mysql_game_id": g.game_id,
+        "title": g.title,
+        "platform": g.platform,
+        "price": float(g.price) if g.price else 0.0,
+        "background_image": m_info.get("background_image") if m_info else None,
+        "genres": m_info.get("genres", []) if m_info else [],
+        "description": m_info.get("description", "No description available.") if m_info else "N/A"
+    }
 
 
 def add_game_to_library(user_id: int, game_id: int, platform: str = None):
@@ -81,10 +118,32 @@ def add_game_to_library(user_id: int, game_id: int, platform: str = None):
 
     return library_entry
 
-
 def get_user_library(user_id: int):
-    """Get all games in user's library."""
-    return UserLibrary.query.filter_by(user_id=user_id).all()
+    """Get all games in user's library with MongoDB metadata."""
+    from app.models import UserLibrary, Game
+    from app.mongodb import get_mongodb
+
+    library_entries = UserLibrary.query.filter_by(user_id=user_id).all()
+    mongo_db = get_mongodb()
+
+    hydrated_library = []
+    for entry in library_entries:
+        game_base = Game.query.get(entry.game_id)
+        if not game_base: continue
+
+        # FIX HERE: use 'is not None'
+        m_info = mongo_db.games.find_one({"title": game_base.title}) if mongo_db is not None else None
+
+        hydrated_library.append({
+            "library_id": entry.library_id,
+            "mysql_game_id": entry.game_id,
+            "title": game_base.title,
+            "platform": entry.platform or game_base.platform,
+            "background_image": m_info.get("background_image") if m_info else None,
+            "genres": m_info.get("genres", []) if m_info else []
+        })
+
+    return hydrated_library
 
 
 def remove_game_from_library(user_id: int, game_id: int):
