@@ -19,7 +19,7 @@ def home():
     if "user_id" in session:
         user_id = session["user_id"]
         user_library = get_user_library(user_id)
-        user_library_game_ids = [entry.game_id for entry in user_library]
+        user_library_game_ids = [entry.get('game_id') for entry in user_library if entry.get('game_id')]
 
     return render_template("home.html", games=games, user_library_game_ids=user_library_game_ids)
 

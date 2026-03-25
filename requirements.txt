@@ -3,6 +3,7 @@ Flask-SQLAlchemy
 Flask-Bcrypt
 pymysql
 pymongo
+mongoengine
 dnspython
 python-dotenv
 requests
