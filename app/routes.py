@@ -110,7 +110,7 @@ def library():
     # Enrich each entry with additional metadata from MongoDB
     enriched_library = []
     for entry in library_entries:
-        mongo_game = get_game_by_id_from_mongodb(entry.game_id)
+        mongo_game = get_game_by_id_from_mongodb(entry.get('game_id'))
         if mongo_game:
             entry.game.background_image = mongo_game.get('background_image')
             entry.game.genres = mongo_game.get('genres', [])
