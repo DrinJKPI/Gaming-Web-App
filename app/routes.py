@@ -103,21 +103,8 @@ def library():
         return render_template("library.html")
 
     user_id = session["user_id"]
-
-    # Get core library entries from MySQL
-    library_entries = get_user_library(user_id)
-
-    # Enrich each entry with additional metadata from MongoDB
-    enriched_library = []
-    for entry in library_entries:
-        mongo_game = get_game_by_id_from_mongodb(entry.get('game_id'))
-        if mongo_game:
-            entry.game.background_image = mongo_game.get('background_image')
-            entry.game.genres = mongo_game.get('genres', [])
-            entry.game.rating = mongo_game.get('rating')
-        enriched_library.append(entry)
-
-    return render_template("library.html", library_games=enriched_library)
+    library_games = get_user_library(user_id)
+    return render_template("library.html", library_games=library_games)
 
 
 @main_bp.route("/add-to-library/<int:game_id>", methods=["POST"])
@@ -170,7 +157,7 @@ def recommendations():
 
     # Get user's library to exclude already owned games from recommendations
     user_library = get_user_library(user_id)
-    user_library_game_ids = [entry.game_id for entry in user_library]
+    user_library_game_ids = [entry["game_id"] for entry in user_library]
 
     # Generate personalized recommendations
     recommended_games = generate_recommendations(user_id, limit=5)

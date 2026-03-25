@@ -11,3 +11,4 @@ pytest
 flask-login
 authlib
 python-openid
+munch
