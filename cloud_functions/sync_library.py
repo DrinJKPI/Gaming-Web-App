@@ -138,7 +138,7 @@ def get_library_summary(user_id):
             # Enrich with MongoDB data
             enriched_games = []
             for entry in user_library:
-                game = get_game_by_id_from_mongodb(entry.game_id)
+                game = get_game_by_id_from_mongodb(entry["game_id"])
                 if game:
                     enriched_games.append({
                         'title': game['title'],

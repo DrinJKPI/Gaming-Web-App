@@ -38,7 +38,7 @@ def generate_recommendations(user_id, limit=5):
                 return []
 
             # Get owned game IDs
-            owned_game_ids = [entry.game_id for entry in user_library]
+            owned_game_ids = [entry["game_id"] for entry in user_library]
 
             # Fetch owned games from MongoDB to analyze preferences
             owned_games = []

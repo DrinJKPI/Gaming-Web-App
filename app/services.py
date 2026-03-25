@@ -136,11 +136,15 @@ def get_user_library(user_id: int):
 
         hydrated_library.append({
             "library_id": entry.library_id,
+            "game_id": entry.game_id,
             "mysql_game_id": entry.game_id,
             "title": game_base.title,
             "platform": entry.platform or game_base.platform,
+            "price": float(game_base.price) if game_base.price is not None else 0.0,
+            "release_date": game_base.release_date,
             "background_image": m_info.get("background_image") if m_info else None,
-            "genres": m_info.get("genres", []) if m_info else []
+            "genres": m_info.get("genres", []) if m_info else [],
+            "rating": m_info.get("rating") if m_info else None,
         })
 
     return hydrated_library
