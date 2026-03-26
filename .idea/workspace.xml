@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d4f1a1ef-2a76-48ee-b614-39d3056bd2c1" name="Changes" comment="Quick fix">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+    <list default="true" id="d4f1a1ef-2a76-48ee-b614-39d3056bd2c1" name="Changes" comment="Hide .env">
+      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -127,14 +128,13 @@
     </configuration>
     <configuration name="Gaming-Web-App" type="Python.FlaskServer">
       <module name="Gaming-Web-App" />
-      <option name="target" value="$PROJECT_DIR$/main.py" />
+      <option name="target" value="$PROJECT_DIR$/app/__init__.py" />
       <option name="targetType" value="PATH" />
-      <option name="ENV_FILES" value="$PROJECT_DIR$/.env" />
+      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <option name="SDK_HOME" value="" />
-      <option name="SDK_NAME" value="Python 3.14 (Gaming-Web-App)" />
-      <option name="WORKING_DIRECTORY" value="C:\Users\DrinJakupi\PycharmProjects\Gaming-Web-App" />
+      <option name="WORKING_DIRECTORY" value="" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
@@ -161,9 +161,9 @@
       <method v="2" />
     </configuration>
     <list>
+      <item itemvalue="Python.Gaming-Web-App" />
       <item itemvalue="Flask server.Gaming-Web-App" />
       <item itemvalue="Flask server.Gaming-Webstore-App" />
-      <item itemvalue="Python.Gaming-Web-App" />
     </list>
   </component>
   <component name="SharedIndexes">
@@ -209,7 +209,9 @@
       <workItem from="1774188806014" duration="4274000" />
       <workItem from="1774279741695" duration="9287000" />
       <workItem from="1774433885272" duration="1569000" />
-      <workItem from="1774453104103" duration="9606000" />
+      <workItem from="1774453104103" duration="9916000" />
+      <workItem from="1774515819933" duration="1836000" />
+      <workItem from="1774519287928" duration="3679000" />
     </task>
     <task id="LOCAL-00001" summary="Typo">
       <option name="closed" value="true" />
@@ -355,7 +357,23 @@
       <option name="project" value="LOCAL" />
       <updated>1774477923310</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="Hide .env">
+      <option name="closed" value="true" />
+      <created>1774478009143</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1774478009143</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Hide .env">
+      <option name="closed" value="true" />
+      <created>1774478087881</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1774478087881</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -376,11 +394,12 @@
     <MESSAGE value="Created Google OAuth, updated login, __init__, models, services, and more" />
     <MESSAGE value="Cleaned up code begins. Adding comments and removing debug statements." />
     <MESSAGE value="Quick fix" />
-    <option name="LAST_COMMIT_MESSAGE" value="Quick fix" />
+    <MESSAGE value="Hide .env" />
+    <option name="LAST_COMMIT_MESSAGE" value="Hide .env" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Gaming_Webstore_App$Gaming_Webstore_App.coverage" NAME="Gaming-Webstore-App Coverage Results" MODIFIED="1769407623400" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
-    <SUITE FILE_PATH="coverage/Gaming_Web_App$Gaming_Web_App.coverage" NAME="Gaming-Web-App Coverage Results" MODIFIED="1774477683204" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="C:\Users\DrinJakupi\PycharmProjects\Gaming-Web-App" />
+    <SUITE FILE_PATH="coverage/Gaming_Web_App$Gaming_Web_App.coverage" NAME="Gaming-Web-App Coverage Results" MODIFIED="1774478249575" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="C:\Users\DrinJakupi\PycharmProjects\Gaming-Web-App" />
     <SUITE FILE_PATH="coverage/Gaming_Web_App$Gaming_Webstore_App.coverage" NAME="Gaming-Webstore-App Coverage Results" MODIFIED="1774018344149" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/Gaming_Webstore_App$Flask__main_py_.coverage" NAME="Flask (main.py) Coverage Results" MODIFIED="1769009852426" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
   </component>
