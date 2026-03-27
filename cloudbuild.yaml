@@ -1,0 +1,35 @@
+# Google Cloud Build: build and push a container image to Artifact Registry.
+# Create the repository first, then run:
+#   gcloud builds submit --config=cloudbuild.yaml \
+#     --substitutions=_REGION=us-central1,_REPO=gaming-web-app,_IMAGE=gaming-web-app
+#
+# Deploy to Cloud Run (after image exists):
+#   gcloud run deploy gaming-web-app --image REGION-docker.pkg.dev/PROJECT/REPO/IMAGE:TAG --region REGION
+
+substitutions:
+  _REGION: us-central1
+  _REPO: gaming-web-app
+  _IMAGE: gaming-web-app
+
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_IMAGE}:$BUILD_ID
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_IMAGE}:latest
+      - .
+
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - --all-tags
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_IMAGE}
+
+images:
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_IMAGE}:$BUILD_ID
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_IMAGE}:latest
+
+options:
+  logging: CLOUD_LOGGING_ONLY

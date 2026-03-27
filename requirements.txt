@@ -12,3 +12,4 @@ flask-login
 authlib
 python-openid
 munch
+gunicorn

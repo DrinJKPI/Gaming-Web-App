@@ -10,6 +10,10 @@ def init_mongodb(app):
     """Initialize MongoDB connection"""
     global mongo_client, mongo_db
 
+    if not Config.MONGO_URI:
+        print("MONGO_URI not set; MongoDB disabled")
+        return None
+
     try:
         mongo_client = MongoClient(Config.MONGO_URI)
         mongo_db = mongo_client['gaming_store']
