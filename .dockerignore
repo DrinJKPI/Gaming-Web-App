@@ -16,10 +16,5 @@ __pycache__
 *.log
 .DS_Store
 Thumbs.db
-tests
 *.md
-repair_sync*.py
-fixed_test_user.py
-migrate_games_to_mongo.py
-enrich_game_metadata.py
-seed_games.py
+
