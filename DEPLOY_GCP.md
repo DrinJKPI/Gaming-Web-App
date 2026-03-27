@@ -24,8 +24,17 @@ Optional: `WEB_CONCURRENCY`, `GUNICORN_THREADS`, `GUNICORN_TIMEOUT`.
 
 ## Local Docker
 
+The image does not include `.env` (it is gitignored / dockerignored). Pass variables with **`--env-file`** or **`-e`**.
+
 ```bash
 docker build -t gaming-web-app:local .
+cp .env.example .env   # edit .env with real credentials
+docker run --rm -p 8080:8080 --env-file .env gaming-web-app:local
+```
+
+Or inline:
+
+```bash
 docker run --rm -p 8080:8080 \
   -e SECRET_KEY=dev-only \
   -e DATABASE_URL="mysql+pymysql://USER:PASS@HOST:3306/DB?ssl_disabled=true" \

@@ -19,10 +19,29 @@ class Config:
     if _database_url:
         SQLALCHEMY_DATABASE_URI = _normalize_database_url(_database_url)
     else:
+        _mu = os.getenv("MYSQL_USER")
+        _mp = os.getenv("MYSQL_PASSWORD")
+        _mh = os.getenv("MYSQL_HOST")
+        _mport = os.getenv("MYSQL_PORT", "3306")
+        _mdb = os.getenv("MYSQL_DATABASE")
+        _missing = [
+            n
+            for n, v in (
+                ("MYSQL_USER", _mu),
+                ("MYSQL_PASSWORD", _mp),
+                ("MYSQL_HOST", _mh),
+                ("MYSQL_DATABASE", _mdb),
+            )
+            if not v
+        ]
+        if _missing:
+            raise RuntimeError(
+                "Database env not set. Either set DATABASE_URL, or set all of: "
+                "MYSQL_USER, MYSQL_PASSWORD, MYSQL_HOST, MYSQL_DATABASE (and optionally MYSQL_PORT, default 3306). "
+                "With Docker: docker run --env-file .env ..."
+            )
         SQLALCHEMY_DATABASE_URI = (
-            f"mysql+pymysql://{os.getenv('MYSQL_USER')}:{os.getenv('MYSQL_PASSWORD')}"
-            f"@{os.getenv('MYSQL_HOST')}:{os.getenv('MYSQL_PORT')}/{os.getenv('MYSQL_DATABASE')}"
-            f"?ssl_disabled=true"
+            f"mysql+pymysql://{_mu}:{_mp}@{_mh}:{_mport}/{_mdb}?ssl_disabled=true"
         )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
