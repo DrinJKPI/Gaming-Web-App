@@ -1,21 +1,47 @@
+# Git
 .git
 .gitignore
+.github
+
+# Environment — do not bake secrets into images
+.env
+.env.*
+!.env.example
+
+# Python
 .venv
 venv
 ENV
 __pycache__
 *.py[cod]
 *$py.class
+*.egg-info
+.eggs
+dist
+build
+
+# Testing / tooling (not needed in runtime image)
+tests
 .pytest_cache
+.coverage
+htmlcov
+.tox
 .mypy_cache
 .ruff_cache
-.env
-.env.*
-!.env.example
+
+# IDE / editor
 .idea
 .vscode
+
+# Logs & local files
 *.log
 .DS_Store
 Thumbs.db
-*.md
 
+# Docs (optional shrink context)
+*.md
+LICENSE
+
+# Local Docker overrides
+docker-compose*.yml
+docker-compose*.yaml
