@@ -12,3 +12,5 @@ flask-login
 authlib
 python-openid
 munch
+pandas
+scikit-learn

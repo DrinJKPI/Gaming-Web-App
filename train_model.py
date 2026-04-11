@@ -1,47 +1,28 @@
-# train_model.py (Root Level)
+# train_model.py
 import pandas as pd
 import pickle
-from app import create_app, db
-from app.models import Game
+import os
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-
+from game_data import games_data # Clean import!
 
 def train_unsupervised_model():
-    app = create_app()
-    with app.app_context():
-        # 1. Pull current data from the DB
-        games = Game.query.all()
-        data = [{"id": g.id, "title": g.title, "tags": g.tags} for g in games]
-        df = pd.DataFrame(data)
+    df = pd.DataFrame(games_data)
+    print(f"Training on {len(df)} games...")
 
-        if df.empty:
-            print("No games found in DB. Run seed_games.py first!")
-            return
+    tfidf = TfidfVectorizer(stop_words='english', ngram_range=(1, 2), sublinear_tf=True)
+    tfidf_matrix = tfidf.fit_transform(df['tags'])
+    similarity_matrix = cosine_similarity(tfidf_matrix)
 
-        print(f"Training on {len(df)} games...")
+    if not os.path.exists('app'):
+        os.makedirs('app')
 
-        # 2. The TF-IDF Logic (Your perfected settings)
-        tfidf = TfidfVectorizer(
-            stop_words='english',
-            ngram_range=(1, 2),
-            sublinear_tf=True
-        )
-        tfidf_matrix = tfidf.fit_transform(df['tags'])
+    with open('app/similarity_matrix.pkl', 'wb') as f:
+        pickle.dump(similarity_matrix, f)
+    with open('app/games_metadata.pkl', 'wb') as f:
+        pickle.dump(df, f)
 
-        # 3. The Similarity Matrix
-        similarity_matrix = cosine_similarity(tfidf_matrix)
-
-        # 4. Save to files inside the app folder so recommendations.py can see them
-        # We save the matrix and the dataframe (to map indices to IDs)
-        with open('app/similarity_matrix.pkl', 'wb') as f:
-            pickle.dump(similarity_matrix, f)
-
-        with open('app/games_metadata.pkl', 'wb') as f:
-            pickle.dump(df, f)
-
-        print("Model trained and saved to app/ folder successfully.")
-
+    print("Success! Model files saved in app/ folder.")
 
 if __name__ == "__main__":
     train_unsupervised_model()
