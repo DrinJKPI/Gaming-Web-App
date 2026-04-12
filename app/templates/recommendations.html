@@ -1,54 +1,66 @@
 {% extends "base.html" %}
 
+{% block title %}Recommendations for You{% endblock %}
+
 {% block content %}
+<div class="container">
+    <h1 class="my-4">Recommended for You</h1>
+    <p class="text-muted">Based on the latest additions to your library.</p>
 
-<h1>Recommended Games for You</h1>
+    <div class="row">
+        {% if recommendations %}
+            {% for game in recommendations %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 game-card shadow-sm">
+                        <img src="{{ game.background_image if game.background_image else url_for('static', filename='images/default_game.jpg') }}"
+                             class="card-img-top game-card-img"
+                             alt="{{ game.title }}"
+                             style="height: 200px; object-fit: cover;">
 
-{% if not session.get("username") %}
-    <div class="empty-library">
-        <p>You need to be logged in to see personalized recommendations.</p>
-        <a href="{{ url_for('main.login') }}">Login to see recommendations</a>
-    </div>
-{% elif recommendations %}
-    <p>Based on your library, we think you'll enjoy these games:</p>
-    
-    <div class="games-grid">
-        {% for game in recommendations %}
-            <div class="game-card">
-                {% if game.background_image %}
-                    <img src="{{ game.background_image }}" alt="{{ game.title }}" style="width: 100%; border-radius: 8px; margin-bottom: 10px;">
-                {% endif %}
-                
-                <h3>{{ game.title }}</h3>
-                <p><strong>Platform:</strong> {{ game.platform }}</p>
-                <p><strong>Price:</strong> ${{ "%.2f"|format(game.price) }}</p>
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">{{ game.title }}</h5>
 
-                {# Updated to handle 'tags' if 'genres' is missing #}
-                <p><strong>Genres:</strong>
-                    {% if game.genres %}{{ ', '.join(game.genres[:3]) }}
-                    {% elif game.tags %}{{ game.tags }}
-                    {% else %}N/A{% endif %}
-                </p>
+                            <p class="card-text text-muted small">
+                                {{ (game.description | default('No description available'))[:100] }}...
+                            </p>
 
-                <p><strong>Rating:</strong> {{ "%.1f"|format(game.rating) if game.rating else 'N/A' }}/5</p>
+                            <div class="mt-auto">
+                                <p class="fw-bold mb-2">${{ "%.2f"|format(game.price) }}</p>
 
-                {# Use game.id here as it usually matches the SQLAlchemy Model PK #}
-                {% if game.id in user_library_game_ids %}
-                    <button disabled style="background-color: #4a5568; cursor: not-allowed;">Already in Library</button>
-                {% else %}
-                    <form method="post" action="{{ url_for('main.add_to_library', game_id=game.id) }}">
-                        <button type="submit">Add to Library</button>
-                    </form>
-                {% endif %}
+                                {% if game.game_id in user_library_game_ids %}
+                                    <button class="btn btn-secondary w-100" disabled>In Library</button>
+                                {% else %}
+                                    <form method="POST" action="{{ url_for('main.add_to_library', game_id=game.game_id) }}">
+                                        <button type="submit" class="btn btn-primary w-100">Add to Library</button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12 text-center py-5">
+                <h3>No recommendations yet!</h3>
+                <p>Add more games to your library to help our AI learn what you like.</p>
+                <a href="{{ url_for('main.index') }}" class="btn btn-outline-primary">Browse Games</a>
             </div>
-        {% endfor %}
+        {% endif %}
     </div>
-{% else %}
-    <div class="empty-library">
-        <p>We need more games in your library to generate recommendations.</p>
-        <p>Add at least one game to get personalized suggestions!</p>
-        <a href="{{ url_for('main.home') }}">Browse Games</a>
-    </div>
-{% endif %}
+</div>
 
+<style>
+    .game-card {
+        transition: transform 0.2s;
+        border: none;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .game-card:hover {
+        transform: translateY(-5px);
+    }
+    .game-card-img {
+        border-bottom: 2px solid #eee;
+    }
+</style>
 {% endblock %}

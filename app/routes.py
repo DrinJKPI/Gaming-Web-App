@@ -3,6 +3,7 @@ from app.services import get_user_by_email, create_user, check_password, get_use
 from app.game_metadata_service import get_all_games_from_mongodb, get_game_by_id_from_mongodb
 from cloud_functions.generate_recommendations import generate_recommendations
 from app.ml_recommendations import get_recommendations
+from app.services import get_user_library
 from app.models import Game # Import the SQLAlchemy Game model
 import logging
 
@@ -159,14 +160,16 @@ def remove_from_library(game_id):
 
 @main_bp.route("/recommendations")
 def recommendations():
+    # 1. Session check
     if "user_id" not in session:
         return render_template("recommendations.html", recommendations=[], user_library_game_ids=[])
 
     user_id = session["user_id"]
-    recommended_games = [] # <--- Initialize here so it's never "Unbound"
+    recommended_games = []
     user_library_game_ids = []
 
     try:
+        # 2. Get Library
         user_library = get_user_library(user_id)
         user_library_game_ids = [entry["game_id"] for entry in user_library]
 
@@ -175,13 +178,30 @@ def recommendations():
             seed_game = Game.query.get(last_game_id)
 
             if seed_game:
+                # 3. Get Recommendations
                 similar_titles = get_recommendations(seed_game.title)
+
+                # 4. Fetch from MySQL
                 recommended_games = Game.query.filter(
                     Game.title.in_(similar_titles),
-                    ~Game.id.in_(user_library_game_ids)
+                    ~Game.game_id.in_(user_library_game_ids)
                 ).all()
+
+                # 5. ATTACH METADATA (The critical part)
+                for game in recommended_games:
+                    # Initialize attributes with defaults so Jinja doesn't crash
+                    game.background_image = None
+                    game.description = "No description available."
+
+                    # Try to fill them from Mongo
+                    metadata = get_game_metadata_from_mongodb(game.game_id)
+                    if metadata:
+                        game.background_image = metadata.get('background_image')
+                        game.description = metadata.get('description', "No description available.")
+
     except Exception as e:
-        logger.error(f"Error generating ML recommendations: {e}")
+        # Use a print or logger to see EXACTLY what's failing in your console
+        print(f"DEBUG: Recommendation Error -> {e}")
 
     return render_template(
         "recommendations.html",

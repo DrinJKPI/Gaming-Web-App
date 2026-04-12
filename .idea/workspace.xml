@@ -4,21 +4,10 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d4f1a1ef-2a76-48ee-b614-39d3056bd2c1" name="Changes" comment="Created a separate file for the hardcoded data, updated seed_games.py, train_model.py runs successfully">
-      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+    <list default="true" id="d4f1a1ef-2a76-48ee-b614-39d3056bd2c1" name="Changes" comment="Unversioned Files">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ml_recommendations.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/ml_recommendations.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/mongo_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/full_system_rebuild.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/home.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/home.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/library.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/library.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/templates/recommendations.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/recommendations.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/schema.sql" beforeDir="false" afterPath="$PROJECT_DIR$/database/schema.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/enrich_game_metadata.py" beforeDir="false" afterPath="$PROJECT_DIR$/enrich_game_metadata.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/game_data.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/seed_games.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/train_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/train_model.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -294,7 +283,7 @@
       <workItem from="1775761151689" duration="2013000" />
       <workItem from="1775808541749" duration="16031000" />
       <workItem from="1775897064081" duration="13473000" />
-      <workItem from="1775990789296" duration="22534000" />
+      <workItem from="1775990789296" duration="24581000" />
     </task>
     <task id="LOCAL-00001" summary="Typo">
       <option name="closed" value="true" />
@@ -480,7 +469,23 @@
       <option name="project" value="LOCAL" />
       <updated>1775933176728</updated>
     </task>
-    <option name="localTasksCounter" value="24" />
+    <task id="LOCAL-00024" summary="Full system rebuild. New games data, added to MongoDB and SQL (functional), added ML model, recommendations page fixed, and more">
+      <option name="closed" value="true" />
+      <created>1776034326359</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1776034326359</updated>
+    </task>
+    <task id="LOCAL-00025" summary="Unversioned Files">
+      <option name="closed" value="true" />
+      <created>1776034343539</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1776034343539</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -504,7 +509,9 @@
     <MESSAGE value="Hide .env" />
     <MESSAGE value="Training ML model + added hardcoded games to database" />
     <MESSAGE value="Created a separate file for the hardcoded data, updated seed_games.py, train_model.py runs successfully" />
-    <option name="LAST_COMMIT_MESSAGE" value="Created a separate file for the hardcoded data, updated seed_games.py, train_model.py runs successfully" />
+    <MESSAGE value="Full system rebuild. New games data, added to MongoDB and SQL (functional), added ML model, recommendations page fixed, and more" />
+    <MESSAGE value="Unversioned Files" />
+    <option name="LAST_COMMIT_MESSAGE" value="Unversioned Files" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Gaming_Web_App$Flask__train_model_py_.coverage" NAME="Flask (train_model.py) Coverage Results" MODIFIED="1776034000548" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
@@ -512,7 +519,7 @@
     <SUITE FILE_PATH="coverage/Gaming_Webstore_App$Gaming_Webstore_App.coverage" NAME="Gaming-Webstore-App Coverage Results" MODIFIED="1769407623400" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/Gaming_Web_App$Flask__repair_sync_OLD_py_.coverage" NAME="Flask (repair_sync_OLD.py) Coverage Results" MODIFIED="1775852384089" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/Gaming_Web_App$Flask__full_system_rebuild_py_.coverage" NAME="Flask (full_system_rebuild.py) Coverage Results" MODIFIED="1776032707680" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
-    <SUITE FILE_PATH="coverage/Gaming_Web_App$Gaming_Web_App.coverage" NAME="Gaming-Web-App Coverage Results" MODIFIED="1776033853265" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="C:\Users\DrinJakupi\OneDrive - Jakupi\Documents\PycharmProjects" />
+    <SUITE FILE_PATH="coverage/Gaming_Web_App$Gaming_Web_App.coverage" NAME="Gaming-Web-App Coverage Results" MODIFIED="1776035496030" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="C:\Users\DrinJakupi\OneDrive - Jakupi\Documents\PycharmProjects" />
     <SUITE FILE_PATH="coverage/Gaming_Web_App$Gaming_Webstore_App.coverage" NAME="Gaming-Webstore-App Coverage Results" MODIFIED="1774018344149" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/Gaming_Web_App$train_model.coverage" NAME="train_model Coverage Results" MODIFIED="1775911267151" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Gaming_Webstore_App$Flask__main_py_.coverage" NAME="Flask (main.py) Coverage Results" MODIFIED="1769009852426" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
