@@ -58,36 +58,32 @@ def fetch_game_metadata(game_title):
         return None
 
 
-app = create_app()
+if __name__ == "__main__":  # <--- Add this line here
+    app = create_app()
+    with app.app_context():
+        print("=" * 60)
+        print("ENRICHING GAME METADATA FROM RAWG API")
+        print("=" * 60)
 
-with app.app_context():
-    print("=" * 60)
-    print("ENRICHING GAME METADATA FROM RAWG API")
-    print("=" * 60)
+        games = get_all_games_from_mongodb()
+        print(f"\nFound {len(games)} games in MongoDB\n")
 
-    games = get_all_games_from_mongodb()
-    print(f"\nFound {len(games)} games in MongoDB\n")
+        success_count = 0
 
-    success_count = 0
+        for i, game in enumerate(games, 1):
+            print(f"[{i}/{len(games)}] {game['title']}...")
+            metadata = fetch_game_metadata(game['title'])
 
-    for i, game in enumerate(games, 1):
-        print(f"[{i}/{len(games)}] {game['title']}...")
+            if metadata:
+                if update_game_in_mongodb(game['mysql_game_id'], metadata):
+                    print(f"Updated with metadata")
+                    success_count += 1
+                else:
+                    print(f"Failed to save")
 
-        # Fetch metadata from RAWG
-        metadata = fetch_game_metadata(game['title'])
+            time.sleep(0.5)
 
-        if metadata:
-            # Update in MongoDB
-            if update_game_in_mongodb(game['mysql_game_id'], metadata):
-                print(f"Updated with metadata")
-                success_count += 1
-            else:
-                print(f"Failed to save")
-
-        # Rate limiting - be nice to the API
-        time.sleep(0.5)  # Wait 0.5 seconds between requests
-
-    print("\n" + "=" * 60)
-    print(f"ENRICHMENT COMPLETE")
-    print(f"Enriched: {success_count}/{len(games)}")
-    print("=" * 60)
+        print("\n" + "=" * 60)
+        print(f"ENRICHMENT COMPLETE")
+        print(f"Enriched: {success_count}/{len(games)}")
+        print("=" * 60)

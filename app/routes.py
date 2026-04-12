@@ -2,6 +2,8 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 from app.services import get_user_by_email, create_user, check_password, get_user_by_username, get_all_games, add_game_to_library, get_game_by_id, get_user_library, remove_game_from_library
 from app.game_metadata_service import get_all_games_from_mongodb, get_game_by_id_from_mongodb
 from cloud_functions.generate_recommendations import generate_recommendations
+from app.ml_recommendations import get_recommendations
+from app.models import Game # Import the SQLAlchemy Game model
 import logging
 
 logger = logging.getLogger(__name__)
@@ -11,15 +13,18 @@ main_bp = Blueprint("main", __name__)
 
 @main_bp.route("/")
 def home():
-    """Home page — loads all games from MongoDB and checks user library ownership"""
     games = get_all_games_from_mongodb()
 
-    # If user is logged in, get their library to check which games they already own
     user_library_game_ids = []
     if "user_id" in session:
         user_id = session["user_id"]
         user_library = get_user_library(user_id)
-        user_library_game_ids = [entry.get('game_id') for entry in user_library if entry.get('game_id')]
+        # Ensure we are grabbing the IDs correctly regardless of format
+        for entry in user_library:
+            if isinstance(entry, dict):
+                user_library_game_ids.append(entry.get('game_id'))
+            else:
+                user_library_game_ids.append(entry.game_id)
 
     return render_template("home.html", games=games, user_library_game_ids=user_library_game_ids)
 
@@ -97,37 +102,42 @@ def logout():
 
 @main_bp.route("/library")
 def library():
-    """Display the user's game library, enriched with MongoDB metadata"""
-    # Redirect to library page without data if user is not logged in
     if "user_id" not in session:
-        return render_template("library.html")
+        return redirect(url_for("main.login"))
 
     user_id = session["user_id"]
-    library_games = get_user_library(user_id)
+    try:
+        user_entries = get_user_library(user_id)
+        game_ids = [entry["game_id"] for entry in user_entries if "game_id" in entry]
+
+        # Use game_id instead of id here
+        library_games = Game.query.filter(Game.game_id.in_(game_ids)).all() if game_ids else []
+    except Exception as e:
+        print(f"Library fetch error: {e}")
+        library_games = []
+
     return render_template("library.html", library_games=library_games)
 
 
 @main_bp.route("/add-to-library/<int:game_id>", methods=["POST"])
 def add_to_library(game_id):
-    """Add a game to the logged-in user's library"""
+    print(f"DEBUG: Button clicked for Game ID: {game_id}")  # 1. Did the click reach Python?
+
     if "user_id" not in session:
+        print("DEBUG: No user in session")  # 2. Is the user logged in?
         return redirect(url_for("main.login"))
 
     user_id = session["user_id"]
+    game = Game.query.get(game_id)
 
-    try:
-        # Verify the game exists in MongoDB before adding
-        game = get_game_by_id_from_mongodb(game_id)
-        if not game:
-            return "Game not found", 404
+    if game:
+        success = add_game_to_library(user_id, game_id, game.platform)
+        if success:
+            print(f"DEBUG: Successfully added to DB")  # 3. Did the service work?
+        else:
+            print(f"DEBUG: Service failed to write to DB")
 
-        # Add to library using the MySQL game_id
-        add_game_to_library(user_id, game_id, game.get('platform'))
-        return redirect(url_for("main.home"))
-
-    except Exception as e:
-        logger.error(f"Error adding game {game_id} to library: {e}")
-        return "Error adding game to library", 500
+    return redirect(url_for("main.home"))
 
 
 @main_bp.route("/remove-from-library/<int:game_id>", methods=["POST"])
@@ -149,18 +159,29 @@ def remove_from_library(game_id):
 
 @main_bp.route("/recommendations")
 def recommendations():
-    """Display AI-generated game recommendations for the logged-in user"""
     if "user_id" not in session:
-        return render_template("recommendations.html")
+        return render_template("recommendations.html", recommendations=[], user_library_game_ids=[])
 
     user_id = session["user_id"]
+    recommended_games = [] # <--- Initialize here so it's never "Unbound"
+    user_library_game_ids = []
 
-    # Get user's library to exclude already owned games from recommendations
-    user_library = get_user_library(user_id)
-    user_library_game_ids = [entry["game_id"] for entry in user_library]
+    try:
+        user_library = get_user_library(user_id)
+        user_library_game_ids = [entry["game_id"] for entry in user_library]
 
-    # Generate personalized recommendations
-    recommended_games = generate_recommendations(user_id, limit=5)
+        if user_library:
+            last_game_id = user_library[-1]["game_id"]
+            seed_game = Game.query.get(last_game_id)
+
+            if seed_game:
+                similar_titles = get_recommendations(seed_game.title)
+                recommended_games = Game.query.filter(
+                    Game.title.in_(similar_titles),
+                    ~Game.id.in_(user_library_game_ids)
+                ).all()
+    except Exception as e:
+        logger.error(f"Error generating ML recommendations: {e}")
 
     return render_template(
         "recommendations.html",

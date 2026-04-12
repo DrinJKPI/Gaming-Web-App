@@ -4,12 +4,20 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d4f1a1ef-2a76-48ee-b614-39d3056bd2c1" name="Changes" comment="Training ML model + added hardcoded games to database">
-      <change afterPath="$PROJECT_DIR$/app/ml_recommendations.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/game_data.py" afterDir="false" />
+    <list default="true" id="d4f1a1ef-2a76-48ee-b614-39d3056bd2c1" name="Changes" comment="Created a separate file for the hardcoded data, updated seed_games.py, train_model.py runs successfully">
+      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/seed_games.py" beforeDir="false" afterPath="$PROJECT_DIR$/seed_games.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/ml_recommendations.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/ml_recommendations.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/mongo_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/full_system_rebuild.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routes.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/templates/home.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/home.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/templates/library.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/library.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/templates/recommendations.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/recommendations.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/schema.sql" beforeDir="false" afterPath="$PROJECT_DIR$/database/schema.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/enrich_game_metadata.py" beforeDir="false" afterPath="$PROJECT_DIR$/enrich_game_metadata.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game_data.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/seed_games.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/train_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/train_model.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -71,8 +79,12 @@
   "keyToString": {
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "DefaultHtmlFileTemplate": "HTML File",
+    "Flask server.Flask (app/wipe_mongo.py).executor": "Run",
+    "Flask server.Flask (enrich_game_metadata.py).executor": "Run",
+    "Flask server.Flask (full_system_rebuild.py).executor": "Run",
     "Flask server.Flask (main.py).executor": "Run",
     "Flask server.Flask (repair_sync_OLD.py).executor": "Run",
+    "Flask server.Flask (train_model.py).executor": "Run",
     "Flask server.Gaming-Web-App.executor": "Run",
     "Flask server.Gaming-Webstore-App.executor": "Run",
     "Python.Gaming-Web-App.executor": "Run",
@@ -107,7 +119,12 @@
       <recent name="C:\Users\DrinJakupi\PycharmProjects\Gaming-Webstore-App" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.train_model">
+  <component name="RunManager" selected="Python.Gaming-Web-App">
+    <configuration name="schema.sql" type="DatabaseScript" editBeforeRun="true" nameIsGenerated="true">
+      <script-file value="$PROJECT_DIR$/database/schema.sql" />
+      <script-mode>FILE</script-mode>
+      <method v="2" />
+    </configuration>
     <configuration name="Gaming-Web-App" type="PythonConfigurationType" factoryName="Python">
       <module name="Gaming-Web-App" />
       <option name="ENV_FILES" value="$PROJECT_DIR$/.env" />
@@ -156,15 +173,33 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="Gaming-Web-App" type="Python.FlaskServer">
+    <configuration name="Flask (train_model.py)" type="Python.FlaskServer" temporary="true" nameIsGenerated="true">
       <module name="Gaming-Web-App" />
-      <option name="target" value="$PROJECT_DIR$/app/__init__.py" />
+      <option name="target" value="$PROJECT_DIR$/train_model.py" />
       <option name="targetType" value="PATH" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="RUN_TOOL" value="" />
+      <option name="launchJavascriptDebuger" value="false" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Gaming-Web-App" type="Python.FlaskServer">
+      <module name="Gaming-Web-App" />
+      <option name="target" value="$PROJECT_DIR$/main.py" />
+      <option name="targetType" value="PATH" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="SDK_NAME" value="Python 3.14 (Gaming-Web-App)" />
+      <option name="WORKING_DIRECTORY" value="C:\Users\DrinJakupi\PycharmProjects\Gaming-Web-App" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
@@ -191,13 +226,16 @@
       <method v="2" />
     </configuration>
     <list>
+      <item itemvalue="Database Script.schema.sql" />
       <item itemvalue="Flask server.Gaming-Web-App" />
       <item itemvalue="Flask server.Gaming-Webstore-App" />
+      <item itemvalue="Flask server.Flask (train_model.py)" />
       <item itemvalue="Python.Gaming-Web-App" />
       <item itemvalue="Python.train_model" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Flask server.Flask (train_model.py)" />
         <item itemvalue="Python.train_model" />
       </list>
     </recent_temporary>
@@ -255,7 +293,8 @@
       <workItem from="1775667906723" duration="1198000" />
       <workItem from="1775761151689" duration="2013000" />
       <workItem from="1775808541749" duration="16031000" />
-      <workItem from="1775897064081" duration="7863000" />
+      <workItem from="1775897064081" duration="13473000" />
+      <workItem from="1775990789296" duration="22534000" />
     </task>
     <task id="LOCAL-00001" summary="Typo">
       <option name="closed" value="true" />
@@ -433,7 +472,15 @@
       <option name="project" value="LOCAL" />
       <updated>1775766181694</updated>
     </task>
-    <option name="localTasksCounter" value="23" />
+    <task id="LOCAL-00023" summary="Created a separate file for the hardcoded data, updated seed_games.py, train_model.py runs successfully">
+      <option name="closed" value="true" />
+      <created>1775933176728</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1775933176728</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -456,14 +503,19 @@
     <MESSAGE value="Quick fix" />
     <MESSAGE value="Hide .env" />
     <MESSAGE value="Training ML model + added hardcoded games to database" />
-    <option name="LAST_COMMIT_MESSAGE" value="Training ML model + added hardcoded games to database" />
+    <MESSAGE value="Created a separate file for the hardcoded data, updated seed_games.py, train_model.py runs successfully" />
+    <option name="LAST_COMMIT_MESSAGE" value="Created a separate file for the hardcoded data, updated seed_games.py, train_model.py runs successfully" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/Gaming_Web_App$Flask__train_model_py_.coverage" NAME="Flask (train_model.py) Coverage Results" MODIFIED="1776034000548" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/Gaming_Web_App$Flask__app_wipe_mongo_py_.coverage" NAME="Flask (app/wipe_mongo.py) Coverage Results" MODIFIED="1776032095207" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/Gaming_Webstore_App$Gaming_Webstore_App.coverage" NAME="Gaming-Webstore-App Coverage Results" MODIFIED="1769407623400" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/Gaming_Web_App$Flask__repair_sync_OLD_py_.coverage" NAME="Flask (repair_sync_OLD.py) Coverage Results" MODIFIED="1775852384089" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
-    <SUITE FILE_PATH="coverage/Gaming_Web_App$Gaming_Web_App.coverage" NAME="Gaming-Web-App Coverage Results" MODIFIED="1774813477436" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="C:\Users\DrinJakupi\PycharmProjects\Gaming-Web-App" />
+    <SUITE FILE_PATH="coverage/Gaming_Web_App$Flask__full_system_rebuild_py_.coverage" NAME="Flask (full_system_rebuild.py) Coverage Results" MODIFIED="1776032707680" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/Gaming_Web_App$Gaming_Web_App.coverage" NAME="Gaming-Web-App Coverage Results" MODIFIED="1776033853265" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="C:\Users\DrinJakupi\OneDrive - Jakupi\Documents\PycharmProjects" />
     <SUITE FILE_PATH="coverage/Gaming_Web_App$Gaming_Webstore_App.coverage" NAME="Gaming-Webstore-App Coverage Results" MODIFIED="1774018344149" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/Gaming_Web_App$train_model.coverage" NAME="train_model Coverage Results" MODIFIED="1775911267151" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Gaming_Webstore_App$Flask__main_py_.coverage" NAME="Flask (main.py) Coverage Results" MODIFIED="1769009852426" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/Gaming_Web_App$Flask__enrich_game_metadata_py_.coverage" NAME="Flask (enrich_game_metadata.py) Coverage Results" MODIFIED="1776032750181" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
   </component>
 </project>

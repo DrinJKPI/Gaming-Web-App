@@ -18,7 +18,8 @@ CREATE TABLE games (
     game_id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL UNIQUE,
     platform VARCHAR(50),
-    price DECIMAL(6,2)
+    price DECIMAL(6,2),
+    tags VARCHAR(150)
 ) ENGINE=InnoDB;
 
 CREATE TABLE user_sessions (

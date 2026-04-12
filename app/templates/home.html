@@ -84,7 +84,7 @@
                 {% if game.mysql_game_id in user_library_game_ids %}
                     <button disabled>Already in Library</button>
                 {% else %}
-                    <form method="post" action="{{ url_for('main.add_to_library', game_id=game.mysql_game_id) }}">
+                    <form method="POST" action="{{ url_for('main.add_to_library', game_id=game['mysql_game_id']) }}">
                         <button type="submit">Add to Library</button>
                     </form>
                 {% endif %}
