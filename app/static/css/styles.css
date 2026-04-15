@@ -466,3 +466,106 @@ button[disabled] {
 .steam-btn:hover {
     background-color: #2a475e;
 }
+
+/* --- NEW: Recommendations Row Styling --- */
+.recommendations-section {
+    margin-bottom: 40px;
+}
+
+.recommendations-section h2 {
+    text-align: left;
+    margin-bottom: 20px;
+    font-size: 1.5em;
+}
+
+.rec-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+}
+
+.rec-card {
+    background-color: #12172a;
+    border: 1px solid #1f2a44;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.rec-card:hover {
+    transform: scale(1.03);
+    border-color: #6cb6ff;
+}
+
+.rec-card a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.rec-card img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+}
+
+.rec-info {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.rec-title {
+    font-size: 0.9em;
+    font-weight: bold;
+    color: #e6f0ff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rec-price {
+    font-size: 0.85em;
+    color: #6cb6ff;
+}
+
+/* Layout for the bar containing Search + Filter Button */
+.search-main-bar {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+/* The Toggle Button */
+.filter-toggle-btn {
+    width: auto !important; /* Overriding your global button width */
+    padding: 10px 25px;
+    background-color: #1f2a44;
+    color: #6cb6ff;
+    border: 1px solid #1f2a44;
+    white-space: nowrap;
+}
+
+.filter-toggle-btn:hover {
+    background-color: #2a3a5a;
+    border-color: #6cb6ff;
+}
+
+/* The Collapsible Content */
+.filters-collapse-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, padding 0.3s ease;
+    background-color: #0b0f1a;
+    border-radius: 8px;
+    padding: 0 20px; /* Horizontal padding only while closed */
+}
+
+/* When active (via JS) */
+.filters-collapse-content.active {
+    max-height: 500px; /* Adjust based on your filter height */
+    padding: 20px;
+    border: 1px solid #1f2a44;
+    margin-top: 10px;
+}

@@ -1,6 +1,7 @@
 import pandas as pd
 import pickle
 import os
+import numpy as np
 
 # Get the absolute path to the current directory to find the .pkl files
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))

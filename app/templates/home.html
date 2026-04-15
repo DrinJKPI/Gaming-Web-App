@@ -1,103 +1,125 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Welcome to the Gaming Webstore</h1>
+<div class="container">
+    <h1>Welcome to the Gaming Webstore</h1>
 
-{% if session.get("username") %}
-    <p>Welcome back, <strong>{{ session["username"] }}</strong>!</p>
-{% endif %}
+    {% if session.get("username") %}
+        <p>Welcome back, <strong>{{ session["username"] }}</strong>!</p>
+    {% endif %}
 
-<!-- NEW: Search and Filter Section -->
-<div class="search-filter-section">
-    <!-- Text Search -->
-    <div class="search-box">
-        <input
-            type="text"
-            id="searchInput"
-            placeholder="Search games by title..."
-            autocomplete="off"
-        >
+    {% if recommendations %}
+    <div class="recommendations-section">
+        <h2>Recommended for You</h2>
+        <div class="rec-grid">
+            {% for game in recommendations %}
+                <div class="rec-card">
+                    <a href="{{ url_for('main.game_details', game_id=game.game_id) }}">
+                        <img src="{{ game.background_image or url_for('static', filename='images/default_game.jpg') }}" alt="{{ game.title }}">
+                        <div class="rec-info">
+                            <span class="rec-title">{{ game.title }}</span>
+                            <span class="rec-price">${{ "%.2f"|format(game.price) }}</span>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
     </div>
+    <hr>
+    {% endif %}
 
-    <!-- Filters Container -->
-    <div class="filters-container">
-
-        <!-- Genre Filter -->
-        <div class="filter-group">
-            <h4>Genre</h4>
-            <div id="genreFilters">
-                <!-- Dynamically populated by JavaScript -->
+    <div class="search-filter-section">
+        <div class="search-main-bar">
+            <div class="search-box" style="position: relative; flex-grow: 1;">
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search games by title..."
+                    autocomplete="off"
+                >
+                <div id="searchDropdown" class="search-dropdown"></div>
             </div>
+
+            <button id="toggleFilters" class="filter-toggle-btn">
+                Filters
+            </button>
         </div>
 
-        <!-- Platform Filter -->
-        <div class="filter-group">
-            <h4>Platform</h4>
-            <div id="platformFilters">
-                <!-- Dynamically populated by JavaScript -->
+        <div id="filterCollapse" class="filters-collapse-content">
+            <div class="filters-container">
+                <div class="filter-group">
+                    <h4>Genre</h4>
+                    <div id="genreFilters"></div>
+                </div>
+
+                <div class="filter-group">
+                    <h4>Platform</h4>
+                    <div id="platformFilters"></div>
+                </div>
+
+                <div class="filter-group">
+                    <h4>Price Range</h4>
+                    <div id="priceFilters">
+                        <label><input type="checkbox" class="price-filter" value="free"> Free</label>
+                        <label><input type="checkbox" class="price-filter" value="0-20"> $0 - $20</label>
+                        <label><input type="checkbox" class="price-filter" value="20-40"> $20 - $40</label>
+                        <label><input type="checkbox" class="price-filter" value="40-60"> $40 - $60</label>
+                        <label><input type="checkbox" class="price-filter" value="60+"> $60+</label>
+                    </div>
+                </div>
             </div>
+            <button id="clearFilters" class="clear-btn">Clear All Filters</button>
         </div>
 
-        <!-- Price Range Filter -->
-        <div class="filter-group">
-            <h4>Price Range</h4>
-            <div id="priceFilters">
-                <label><input type="checkbox" class="price-filter" value="free"> Free</label>
-                <label><input type="checkbox" class="price-filter" value="0-20"> $0 - $20</label>
-                <label><input type="checkbox" class="price-filter" value="20-40"> $20 - $40</label>
-                <label><input type="checkbox" class="price-filter" value="40-60"> $40 - $60</label>
-                <label><input type="checkbox" class="price-filter" value="60+"> $60+</label>
-            </div>
+        <div class="results-info">
+            <p id="resultsCount">Showing <strong id="visibleCount">0</strong> of <strong id="totalCount">0</strong> games</p>
         </div>
-
-        <!-- Clear Filters Button -->
-        <button id="clearFilters" class="clear-btn">Clear All Filters</button>
     </div>
 
-    <!-- Results Counter -->
-    <div class="results-info">
-        <p id="resultsCount">Showing <strong id="visibleCount">0</strong> of <strong id="totalCount">0</strong> games</p>
-    </div>
-</div>
+    <hr>
 
-<hr>
-
-<!-- Existing Games Grid -->
-<div class="games-grid" id="gamesGrid">
+    <div class="games-grid" id="gamesGrid">
     {% for game in games %}
-        <div class="game-card"
-             data-title="{{ game.title | lower }}"
-             data-genres="{{ game.genres | join(',') | lower }}"
-             data-platform="{{ game.platform | lower }}"
-             data-price="{{ game.price }}">
+        {# Brute force detection for the ID #}
+        {% if game is mapping %}
+            {% set g_id = game.get('game_id') or game.get('mysql_game_id') %}
+        {% else %}
+            {% set g_id = game.game_id %}
+        {% endif %}
 
-            {% if game.background_image %}
-                <img src="{{ game.background_image }}" alt="{{ game.title }}" loading="lazy">
-            {% endif %}
+            <div class="game-card"
+                data-title="{{ (game.title or '') | lower }}"
+                data-genres="{{ (game.genres | join(',')) | lower if game.genres else '' }}"
+                data-platform="{{ (game.platform or '') | lower if game.platform else '' }}"
+                data-price="{{ game.price or 0 }}">
 
-            <h3>{{ game.title }}</h3>
-            <p><strong>Platform:</strong> {{ game.platform }}</p>
-            <p><strong>Price:</strong> ${{ "%.2f"|format(game.price) }}</p>
-            <p><strong>Genres:</strong> {{ ', '.join(game.genres[:3]) if game.genres else 'N/A' }}</p>
+                <img src="{{ game.background_image if game.background_image else url_for('static', filename='images/default_game.jpg') }}"
+                    alt="{{ game.title }}" loading="lazy">
 
-            {% if session.get("user_id") %}
-                {% if game.mysql_game_id in user_library_game_ids %}
-                    <button disabled>Already in Library</button>
+                <h3>{{ game.title or "Unknown Game" }}</h3>
+                <p><strong>Platform:</strong> {{ game.platform or "N/A" }}</p>
+                <p><strong>Price:</strong> ${{ "%.2f"|format(game.price or 0) }}</p>
+                <p><strong>Genres:</strong> {{ game.genres[:3]|join(', ') if game.genres else 'N/A' }}</p>
+
+                {% if session.get("user_id") %}
+                    {% if g_id and g_id in user_library_game_ids %}
+                        <button class="btn-disabled" disabled>In Library</button>
+                    {% elif g_id %}
+                        <form method="POST" action="{{ url_for('main.add_to_library', game_id=g_id) }}">
+                            <button type="submit" class="add-btn">Add to Library</button>
+                        </form>
+                    {% else %}
+                        <button disabled title="ID missing in database">Unavailable</button>
+                    {% endif %}
                 {% else %}
-                    <form method="POST" action="{{ url_for('main.add_to_library', game_id=game['mysql_game_id']) }}">
-                        <button type="submit">Add to Library</button>
-                    </form>
+                    <a href="{{ url_for('main.login') }}" class="login-link-btn">Login to Add</a>
                 {% endif %}
-            {% else %}
-                <a href="{{ url_for('main.login') }}">Login to Add</a>
-            {% endif %}
-        </div>
-    {% endfor %}
-</div>
+            </div>
+        {% endfor %}
+    </div>
 
-<!-- No Results Message -->
-<div id="noResults" style="display: none; text-align: center; padding: 40px;">
-    <p>No games match your filters. Try adjusting your search criteria.</p>
+    <div id="noResults" style="display: none; text-align: center; padding: 40px;">
+        <p>No games match your filters. Try adjusting your search criteria.</p>
+    </div>
 </div>
-
 {% endblock %}
