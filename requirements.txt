@@ -14,3 +14,4 @@ python-openid
 munch
 pandas
 scikit-learn
+gunicorn
