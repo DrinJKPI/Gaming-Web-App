@@ -3,7 +3,11 @@
 .gitignore
 .github
 
+<<<<<<< HEAD
 # Secrets — never copy into the image
+=======
+# Environment — do not bake secrets into images
+>>>>>>> main
 .env
 .env.*
 !.env.example
