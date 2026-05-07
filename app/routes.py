@@ -1,10 +1,11 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
-from app.services import get_user_by_email, create_user, check_password, get_user_by_username, get_all_games, add_game_to_library, get_game_by_id, get_user_library, remove_game_from_library
+from app.services import (get_user_by_email, create_user, check_password, 
+                          get_user_by_username, get_all_games, add_game_to_library, 
+                          get_game_by_id, get_user_library, remove_game_from_library)
 from app.game_metadata_service import get_all_games_from_mongodb, get_game_by_id_from_mongodb
-from cloud_functions.generate_recommendations import generate_recommendations
+from cloud_functions.generate_recommendations import generate_recommendations as generate_rule_based_recs
 from app.ml_recommendations import get_recommendations
-from app.services import get_user_library
-from app.models import Game # Import the SQLAlchemy Game model
+from app.models import Game
 import logging
 
 logger = logging.getLogger(__name__)
@@ -16,18 +17,59 @@ main_bp = Blueprint("main", __name__)
 def home():
     games = get_all_games_from_mongodb()
 
+    user_id = session.get("user_id")
     user_library_game_ids = []
-    if "user_id" in session:
-        user_id = session["user_id"]
-        user_library = get_user_library(user_id)
-        # Ensure we are grabbing the IDs correctly regardless of format
-        for entry in user_library:
-            if isinstance(entry, dict):
-                user_library_game_ids.append(entry.get('game_id'))
-            else:
-                user_library_game_ids.append(entry.game_id)
+    recommendations = []
 
-    return render_template("home.html", games=games, user_library_game_ids=user_library_game_ids)
+    if user_id:
+        user_library = get_user_library(user_id)
+        user_library_game_ids = [entry.get('game_id') if isinstance(entry, dict) else entry.game_id for entry in user_library]
+
+        if user_library:
+            try:
+                # 1. Try ML Recommendations (Content-based)
+                last_game_id = user_library[-1]["game_id"]
+                seed_game = Game.query.get(last_game_id)
+                
+                if seed_game:
+                    similar_titles = get_recommendations(seed_game.title)
+                    if similar_titles:
+                        # Fetch and hydrate from MySQL + Mongo
+                        rec_models = Game.query.filter(
+                            Game.title.in_(similar_titles),
+                            ~Game.game_id.in_(user_library_game_ids)
+                        ).all()
+                        
+                        for g in rec_models:
+                            m_info = get_game_by_id_from_mongodb(g.game_id)
+                            recommendations.append({
+                                "game_id": g.game_id,
+                                "title": g.title,
+                                "price": float(g.price) if g.price else 0.0,
+                                "background_image": m_info.get("background_image") if m_info else None
+                            })
+
+                # 2. Fallback to Rule-based if ML is empty or failed
+                if not recommendations:
+                    print("ML returned no results, falling back to rule-based engine")
+                    rule_recs = generate_rule_based_recs(user_id, limit=4)
+                    for g in rule_recs:
+                        # Rule-based returns Mongo docs already, but we need to ensure they match template expectations
+                        recommendations.append({
+                            "game_id": g.get('mysql_game_id'),
+                            "title": g.get('title'),
+                            "price": float(g.get('price')) if g.get('price') else 0.0,
+                            "background_image": g.get('background_image')
+                        })
+            except Exception as e:
+                print(f"Recommendation generation error on Home: {e}")
+
+    return render_template(
+        "home.html", 
+        games=games, 
+        user_library_game_ids=user_library_game_ids, 
+        recommendations=recommendations[:4]
+    )
 
 
 @main_bp.route("/login", methods=["GET", "POST"])
@@ -158,56 +200,6 @@ def remove_from_library(game_id):
         return "Error removing game from library", 500
 
 
-@main_bp.route("/recommendations")
-def recommendations():
-    # 1. Session check
-    if "user_id" not in session:
-        return render_template("recommendations.html", recommendations=[], user_library_game_ids=[])
-
-    user_id = session["user_id"]
-    recommended_games = []
-    user_library_game_ids = []
-
-    try:
-        # 2. Get Library
-        user_library = get_user_library(user_id)
-        user_library_game_ids = [entry["game_id"] for entry in user_library]
-
-        if user_library:
-            last_game_id = user_library[-1]["game_id"]
-            seed_game = Game.query.get(last_game_id)
-
-            if seed_game:
-                # 3. Get Recommendations
-                similar_titles = get_recommendations(seed_game.title)
-
-                # 4. Fetch from MySQL
-                recommended_games = Game.query.filter(
-                    Game.title.in_(similar_titles),
-                    ~Game.game_id.in_(user_library_game_ids)
-                ).all()
-
-                # 5. ATTACH METADATA (The critical part)
-                for game in recommended_games:
-                    # Initialize attributes with defaults so Jinja doesn't crash
-                    game.background_image = None
-                    game.description = "No description available."
-
-                    # Try to fill them from Mongo
-                    metadata = get_game_metadata_from_mongodb(game.game_id)
-                    if metadata:
-                        game.background_image = metadata.get('background_image')
-                        game.description = metadata.get('description', "No description available.")
-
-    except Exception as e:
-        # Use a print or logger to see EXACTLY what's failing in your console
-        print(f"DEBUG: Recommendation Error -> {e}")
-
-    return render_template(
-        "recommendations.html",
-        recommendations=recommended_games,
-        user_library_game_ids=user_library_game_ids
-    )
 
 @main_bp.route('/debug-count')
 def debug_count():

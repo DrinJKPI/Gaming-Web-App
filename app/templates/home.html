@@ -8,27 +8,7 @@
         <p>Welcome back, <strong>{{ session["username"] }}</strong>!</p>
     {% endif %}
 
-    {% if recommendations %}
-    <div class="recommendations-section">
-        <h2>Recommended for You</h2>
-        <div class="rec-grid">
-            {% for game in recommendations %}
-                <div class="rec-card">
-                    <a href="{{ url_for('main.game_details', game_id=game.game_id) }}">
-                        <img src="{{ game.background_image or url_for('static', filename='images/default_game.jpg') }}" alt="{{ game.title }}">
-                        <div class="rec-info">
-                            <span class="rec-title">{{ game.title }}</span>
-                            <span class="rec-price">${{ "%.2f"|format(game.price) }}</span>
-                        </div>
-                    </a>
-                </div>
-            {% endfor %}
-        </div>
-    </div>
-    <hr>
-    {% endif %}
-
-    <div class="search-filter-section">
+    <div class="search-filter-section compact-search">
         <div class="search-main-bar">
             <div class="search-box" style="position: relative; flex-grow: 1;">
                 <input
@@ -76,7 +56,27 @@
         </div>
     </div>
 
+    {% if recommendations %}
+    <div class="recommendations-section">
+        <h2>Recommended for You</h2>
+        <div class="rec-grid">
+            {% for game in recommendations %}
+                <div class="rec-card">
+                    <img src="{{ game.background_image or url_for('static', filename='images/default_game.jpg') }}" alt="{{ game.title }}">
+                    <div class="rec-info">
+                        <span class="rec-title">{{ game.title }}</span>
+                        <span class="rec-price">${{ "%.2f"|format(game.price) }}</span>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
     <hr>
+    {% else %}
+    <hr>
+    {% endif %}
+
+    <h2 class="section-title">Explore Games</h2>
 
     <div class="games-grid" id="gamesGrid">
     {% for game in games %}
