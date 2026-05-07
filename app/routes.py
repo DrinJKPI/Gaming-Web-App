@@ -3,8 +3,7 @@ from app.services import (get_user_by_email, create_user, check_password,
                           get_user_by_username, get_all_games, add_game_to_library, 
                           get_game_by_id, get_user_library, remove_game_from_library)
 from app.game_metadata_service import get_all_games_from_mongodb, get_game_by_id_from_mongodb
-from cloud_functions.generate_recommendations import generate_recommendations as generate_rule_based_recs
-from app.ml_recommendations import get_recommendations
+from app.recommender_service import HybridRecommender
 from app.models import Game
 import logging
 
@@ -26,43 +25,8 @@ def home():
         user_library_game_ids = [entry.get('game_id') if isinstance(entry, dict) else entry.game_id for entry in user_library]
 
         if user_library:
-            try:
-                # 1. Try ML Recommendations (Content-based)
-                last_game_id = user_library[-1]["game_id"]
-                seed_game = Game.query.get(last_game_id)
-                
-                if seed_game:
-                    similar_titles = get_recommendations(seed_game.title)
-                    if similar_titles:
-                        # Fetch and hydrate from MySQL + Mongo
-                        rec_models = Game.query.filter(
-                            Game.title.in_(similar_titles),
-                            ~Game.game_id.in_(user_library_game_ids)
-                        ).all()
-                        
-                        for g in rec_models:
-                            m_info = get_game_by_id_from_mongodb(g.game_id)
-                            recommendations.append({
-                                "game_id": g.game_id,
-                                "title": g.title,
-                                "price": float(g.price) if g.price else 0.0,
-                                "background_image": m_info.get("background_image") if m_info else None
-                            })
-
-                # 2. Fallback to Rule-based if ML is empty or failed
-                if not recommendations:
-                    print("ML returned no results, falling back to rule-based engine")
-                    rule_recs = generate_rule_based_recs(user_id, limit=4)
-                    for g in rule_recs:
-                        # Rule-based returns Mongo docs already, but we need to ensure they match template expectations
-                        recommendations.append({
-                            "game_id": g.get('mysql_game_id'),
-                            "title": g.get('title'),
-                            "price": float(g.get('price')) if g.get('price') else 0.0,
-                            "background_image": g.get('background_image')
-                        })
-            except Exception as e:
-                print(f"Recommendation generation error on Home: {e}")
+            # Use the new Hybrid Recommender Service
+            recommendations = HybridRecommender.get_homepage_recommendations(user_id, limit=4)
 
     return render_template(
         "home.html", 
@@ -175,6 +139,10 @@ def add_to_library(game_id):
 
     if game:
         success = add_game_to_library(user_id, game_id, game.platform)
+        
+        # Invalidate recommendation cache
+        HybridRecommender.clear_cache(user_id)
+        
         if success:
             print(f"DEBUG: Successfully added to DB")  # 3. Did the service work?
         else:
@@ -193,6 +161,9 @@ def remove_from_library(game_id):
 
     try:
         remove_game_from_library(user_id, game_id)
+        
+        # Invalidate recommendation cache
+        HybridRecommender.clear_cache(user_id)
         return redirect(url_for("main.library"))
 
     except Exception as e:
