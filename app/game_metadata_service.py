@@ -130,6 +130,30 @@ def update_game_in_mongodb(game_id, update_data):
         return False
 
 
+def get_games_by_ids_from_mongodb(game_ids):
+    """Fetch multiple games from MongoDB in a single query"""
+    try:
+        db = get_mongodb()
+        if db is None:
+            return []
+
+        collection = db['games']
+        
+        # Convert to int if they are mysql IDs
+        int_ids = [int(gid) for gid in game_ids]
+        
+        games = list(collection.find({'mysql_game_id': {'$in': int_ids}}))
+
+        for game in games:
+            game['_id'] = str(game['_id'])
+
+        return games
+
+    except Exception as e:
+        print(f"Error in batch retrieval: {e}")
+        return []
+
+
 def delete_game_from_mongodb(game_id):
     """Delete a game from MongoDB"""
     try:

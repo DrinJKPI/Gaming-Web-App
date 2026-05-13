@@ -11,7 +11,7 @@ RAWG_BASE_URL = "https://api.rawg.io/api"
 
 
 def fetch_game_metadata(game_title):
-    """Fetch metadata from RAWG API"""
+    """Fetch metadata and Steam URL from RAWG API"""
     try:
         params = {
             "key": RAWG_API_KEY,
@@ -27,29 +27,42 @@ def fetch_game_metadata(game_title):
             print(f"No results found")
             return None
 
-        game = data['results'][0]
+        game_data = data['results'][0]
+        game_id = game_data['id']
 
         # Filter English-only tags (no Cyrillic characters)
-        all_tags = game.get('tags', [])
+        all_tags = game_data.get('tags', [])
         english_tags = [
             t['name'] for t in all_tags
             if t.get('language') == 'eng' or not any(ord(char) > 127 for char in t['name'])
         ][:10]
 
-        # Extract metadata
+        # Extract basic metadata
         metadata = {
-            "description": game.get('description_raw', '') or game.get('description', '')[
+            "description": game_data.get('description_raw', '') or game_data.get('description', '')[
                 :500] or "No description available.",
-            "genres": [g['name'] for g in game.get('genres', [])][:5],
+            "genres": [g['name'] for g in game_data.get('genres', [])][:5],
             "tags": english_tags,
-            "rating": game.get('rating'),
-            "metacritic_score": game.get('metacritic'),
-            "background_image": game.get('background_image'),
-            "developer": [d['name'] for d in game.get('developers', [])][:3],
-            "publisher": [p['name'] for p in game.get('publishers', [])][:3],
-            "esrb_rating": game.get('esrb_rating', {}).get('name') if game.get('esrb_rating') else None,
-            "playtime": game.get('playtime')
+            "rating": game_data.get('rating'),
+            "metacritic_score": game_data.get('metacritic'),
+            "background_image": game_data.get('background_image'),
+            "developer": [d['name'] for d in game_data.get('developers', [])][:3],
+            "publisher": [p['name'] for p in game_data.get('publishers', [])][:3],
+            "esrb_rating": game_data.get('esrb_rating', {}).get('name') if game_data.get('esrb_rating') else None,
+            "playtime": game_data.get('playtime'),
+            "steam_url": None
         }
+
+        # Fetch Store Links
+        try:
+            stores_response = requests.get(f"{RAWG_BASE_URL}/games/{game_id}/stores", params={"key": RAWG_API_KEY}, timeout=5)
+            stores_data = stores_response.json()
+            for store_entry in stores_data.get('results', []):
+                if store_entry.get('store_id') == 1: # Steam
+                    metadata["steam_url"] = store_entry.get('url')
+                    break
+        except Exception as store_err:
+            print(f"  Warning: Could not fetch store links: {store_err}")
 
         return metadata
 

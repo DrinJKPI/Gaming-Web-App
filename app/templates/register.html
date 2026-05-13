@@ -12,7 +12,9 @@
     <p style="color: green;">{{ success }}</p>
 {% endif %}
 
-<form method="post">
+<div id="status-message" style="margin-bottom: 15px; display: none;"></div>
+
+<form id="registerForm" method="post">
     <label>Username:</label><br>
     <input type="text" name="username" required><br><br>
 
@@ -28,9 +30,55 @@
     <label>Confirm Password:</label><br>
     <input type="password" name="confirm_password" required><br><br>
 
-    <button type="submit">Register</button>
+    <button type="submit" id="regBtn">Register</button>
 </form>
 
 <p>Already have an account? <a href="{{ url_for('main.login') }}">Login here</a></p>
 
+<script>
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const submitBtn = document.getElementById('regBtn');
+    const statusMsg = document.getElementById('status-message');
+    
+    submitBtn.disabled = true;
+    submitBtn.innerText = 'Registering...';
+    statusMsg.style.display = 'none';
+    
+    fetch(window.location.href, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            statusMsg.innerText = data.message;
+            statusMsg.style.color = 'green';
+            statusMsg.style.display = 'block';
+            setTimeout(() => {
+                window.location.href = data.redirect_url;
+            }, 2000);
+        } else {
+            statusMsg.innerText = data.message;
+            statusMsg.style.color = 'red';
+            statusMsg.style.display = 'block';
+            submitBtn.disabled = false;
+            submitBtn.innerText = 'Register';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        statusMsg.innerText = 'An error occurred. Please try again.';
+        statusMsg.style.color = 'red';
+        statusMsg.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.innerText = 'Register';
+    });
+});
+</script>
 {% endblock %}

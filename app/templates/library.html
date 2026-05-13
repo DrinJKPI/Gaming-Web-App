@@ -24,7 +24,7 @@
 
                     <div style="margin-top: 15px;">
                         {# Crucial: Using game_id to match your SQLAlchemy model attribute #}
-                        <form method="post" action="{{ url_for('main.remove_from_library', game_id=game.game_id) }}" onsubmit="return confirm('Remove this game from your library?');">
+                        <form method="post" action="{{ url_for('main.remove_from_library', game_id=game.game_id) }}">
                             <button type="submit" style="background-color: #e53e3e; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; width: 100%;">
                                 Remove from Library
                             </button>
@@ -43,4 +43,4 @@
         </div>
     {% endif %}
 </div>
-{% endblock %}
+{% endblock %}

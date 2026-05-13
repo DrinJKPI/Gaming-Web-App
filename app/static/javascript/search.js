@@ -53,6 +53,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- Core Filter Function ---
     function applyFilters() {
         const searchTerm = searchInput.value.toLowerCase().trim();
+        const searchTokens = searchTerm.split(/\s+/).filter(t => t.length > 0);
+        
         const selectedGenres = Array.from(genreCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
         const selectedPlatforms = Array.from(platformCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
         const selectedPriceRanges = Array.from(priceCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
@@ -60,12 +62,13 @@ document.addEventListener('DOMContentLoaded', function() {
         let visibleCount = 0;
 
         gameCards.forEach(card => {
-            const title = card.dataset.title;
-            const cardGenres = card.dataset.genres.split(',').map(g => g.trim());
+            const title = (card.dataset.title || '').toLowerCase();
+            const cardGenres = (card.dataset.genres || '').split(',').map(g => g.trim());
             const platform = card.dataset.platform;
             const price = parseFloat(card.dataset.price);
 
-            const matchesSearch = title.includes(searchTerm);
+            // Token-based matching: ALL search words must be in the title
+            const matchesSearch = searchTokens.every(token => title.includes(token));
             const matchesGenre = selectedGenres.length === 0 || selectedGenres.some(g => cardGenres.includes(g));
             const matchesPlatform = selectedPlatforms.length === 0 || selectedPlatforms.includes(platform);
             const matchesPrice = selectedPriceRanges.length === 0 || selectedPriceRanges.some(range => isPriceInRange(price, range));
@@ -131,29 +134,37 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // --- Listeners ---
-    toggleBtn.addEventListener('click', () => {
-        filterPanel.classList.toggle('active');
-        toggleBtn.textContent = filterPanel.classList.contains('active') ? 'Hide Filters' : 'Filters';
-    });
+    if (toggleBtn && filterPanel) {
+        toggleBtn.addEventListener('click', () => {
+            filterPanel.classList.toggle('active');
+            toggleBtn.textContent = filterPanel.classList.contains('active') ? 'Hide Filters' : 'Filters';
+        });
+    }
 
-    searchInput.addEventListener('input', debounce(() => {
-        applyFilters();
-        updateDropdown();
-    }, 300));
+    if (searchInput) {
+        searchInput.addEventListener('input', debounce(() => {
+            applyFilters();
+            if (typeof updateDropdown === 'function') updateDropdown();
+        }, 300));
+    }
 
     [...genreCheckboxes, ...platformCheckboxes, ...priceCheckboxes].forEach(cb => {
         cb.addEventListener('change', applyFilters);
     });
 
-    clearFiltersBtn.addEventListener('click', () => {
-        searchInput.value = '';
-        [...genreCheckboxes, ...platformCheckboxes, ...priceCheckboxes].forEach(cb => cb.checked = false);
-        applyFilters();
-    });
+    if (clearFiltersBtn) {
+        clearFiltersBtn.addEventListener('click', () => {
+            if (searchInput) searchInput.value = '';
+            [...genreCheckboxes, ...platformCheckboxes, ...priceCheckboxes].forEach(cb => cb.checked = false);
+            applyFilters();
+        });
+    }
 
     document.addEventListener('click', (e) => {
-        if (!searchInput.contains(e.target) && !searchDropdown.contains(e.target)) {
-            searchDropdown.style.display = 'none';
+        if (searchInput && searchDropdown) {
+            if (!searchInput.contains(e.target) && !searchDropdown.contains(e.target)) {
+                searchDropdown.style.display = 'none';
+            }
         }
     });
 

@@ -62,11 +62,17 @@
         <div class="rec-grid">
             {% for game in recommendations %}
                 <div class="rec-card">
-                    <img src="{{ game.background_image or url_for('static', filename='images/default_game.jpg') }}" alt="{{ game.title }}">
-                    <div class="rec-info">
-                        <span class="rec-title">{{ game.title }}</span>
-                        <span class="rec-price">${{ "%.2f"|format(game.price) }}</span>
-                    </div>
+                    {% if game.steam_url %}
+                    <a href="{{ game.steam_url }}" target="_blank" title="View on Steam" class="card-link">
+                    {% endif %}
+                        <img src="{{ game.background_image or url_for('static', filename='images/default_game.jpg') }}" alt="{{ game.title }}">
+                        <div class="rec-info">
+                            <span class="rec-title">{{ game.title }}</span>
+                            <span class="rec-price">${{ "%.2f"|format(game.price) }}</span>
+                        </div>
+                    {% if game.steam_url %}
+                    </a>
+                    {% endif %}
                 </div>
             {% endfor %}
         </div>
@@ -93,10 +99,17 @@
                 data-platform="{{ (game.platform or '') | lower if game.platform else '' }}"
                 data-price="{{ game.price or 0 }}">
 
-                <img src="{{ game.background_image if game.background_image else url_for('static', filename='images/default_game.jpg') }}"
-                    alt="{{ game.title }}" loading="lazy">
+                {% if game.steam_url %}
+                <a href="{{ game.steam_url }}" target="_blank" title="View on Steam" class="card-link">
+                {% endif %}
+                    <img src="{{ game.background_image if game.background_image else url_for('static', filename='images/default_game.jpg') }}"
+                        alt="{{ game.title }}" loading="lazy">
 
-                <h3>{{ game.title or "Unknown Game" }}</h3>
+                    <h3>{{ game.title or "Unknown Game" }}</h3>
+                {% if game.steam_url %}
+                </a>
+                {% endif %}
+                
                 <p><strong>Platform:</strong> {{ game.platform or "N/A" }}</p>
                 <p><strong>Price:</strong> ${{ "%.2f"|format(game.price or 0) }}</p>
                 <p><strong>Genres:</strong> {{ game.genres[:3]|join(', ') if game.genres else 'N/A' }}</p>

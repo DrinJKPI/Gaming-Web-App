@@ -501,9 +501,10 @@ button[disabled] {
     border-color: #6cb6ff;
 }
 
-.rec-card a {
+.rec-card a, .game-card a.card-link {
     text-decoration: none;
     color: inherit;
+    display: block;
 }
 
 .rec-card img {

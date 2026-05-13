@@ -59,19 +59,21 @@ def get_all_games():
 
     mongo_db = get_mongodb()
     mysql_games = Game.query.all()
+    # Batch fetch all metadata from MongoDB
+    all_mongo_info = list(mongo_db.games.find()) if mongo_db is not None else []
+    mongo_map = {m.get("title"): m for m in all_mongo_info}
+
     combined_games = []
-
     for g in mysql_games:
-        # FIX HERE: use 'is not None'
-        m_info = mongo_db.games.find_one({"title": g.title}) if mongo_db is not None else None
-
+        m_info = mongo_map.get(g.title, {})
         combined_games.append({
             "mysql_game_id": g.game_id,
             "title": g.title,
             "platform": g.platform,
             "price": float(g.price) if g.price else 0.0,
-            "background_image": m_info.get("background_image") if m_info else None,
-            "genres": m_info.get("genres", []) if m_info else []
+            "background_image": m_info.get("background_image"),
+            "genres": m_info.get("genres", []),
+            "steam_url": m_info.get("steam_url")
          })
     return combined_games
 
@@ -124,15 +126,26 @@ def get_user_library(user_id: int):
     from app.mongodb import get_mongodb
 
     library_entries = UserLibrary.query.filter_by(user_id=user_id).all()
+    if not library_entries:
+        return []
+
+    # 1. Batch fetch all MySQL Games for the library
+    game_ids = [entry.game_id for entry in library_entries]
+    games_list = Game.query.filter(Game.game_id.in_(game_ids)).all()
+    game_map = {g.game_id: g for g in games_list}
+
+    # 2. Batch fetch all MongoDB Metadata for the titles
     mongo_db = get_mongodb()
+    titles = [g.title for g in games_list]
+    all_mongo_info = list(mongo_db.games.find({"title": {"$in": titles}})) if mongo_db is not None else []
+    mongo_map = {m.get("title"): m for m in all_mongo_info}
 
     hydrated_library = []
     for entry in library_entries:
-        game_base = Game.query.get(entry.game_id)
+        game_base = game_map.get(entry.game_id)
         if not game_base: continue
 
-        # FIX HERE: use 'is not None'
-        m_info = mongo_db.games.find_one({"title": game_base.title}) if mongo_db is not None else None
+        m_info = mongo_map.get(game_base.title, {})
 
         hydrated_library.append({
             "library_id": entry.library_id,
@@ -142,9 +155,9 @@ def get_user_library(user_id: int):
             "platform": entry.platform or game_base.platform,
             "price": float(game_base.price) if game_base.price is not None else 0.0,
             "release_date": game_base.release_date,
-            "background_image": m_info.get("background_image") if m_info else None,
-            "genres": m_info.get("genres", []) if m_info else [],
-            "rating": m_info.get("rating") if m_info else None,
+            "background_image": m_info.get("background_image"),
+            "genres": m_info.get("genres", []),
+            "rating": m_info.get("rating"),
         })
 
     return hydrated_library

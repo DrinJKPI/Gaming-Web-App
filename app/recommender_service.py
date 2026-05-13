@@ -2,7 +2,7 @@ from app.ml_recommendations import get_recommendations as get_ml_recs
 from cloud_functions.generate_recommendations import get_score_based_recommendations
 from app.services import get_user_library
 from app.models import Game
-from app.game_metadata_service import get_game_by_id_from_mongodb
+from app.game_metadata_service import get_games_by_ids_from_mongodb
 
 class HybridRecommender:
     # In-memory cache to store recommendations per user
@@ -38,59 +38,63 @@ class HybridRecommender:
             owned_ids = [entry["game_id"] for entry in user_library]
             
             # --- 1. ML-Based Extraction (Multi-Seed) ---
-            # Get similarity results for the last 3 games added to library
-            ml_candidates = []
+            ml_titles = []
             recent_games = user_library[-3:] if len(user_library) >= 3 else user_library
             
             for entry in reversed(recent_games):
-                g = Game.query.get(entry["game_id"])
-                if g:
-                    # Get 3 similar games per seed
-                    similar_titles = get_ml_recs(g.title, num_recommendations=3)
-                    for title in similar_titles:
-                        # Find the game object
-                        match = Game.query.filter_by(title=title).first()
-                        if match and match.game_id not in owned_ids:
-                            ml_candidates.append(match)
+                # Use a title cache or fetch from DB efficiently
+                seed_game = Game.query.get(entry["game_id"])
+                if seed_game:
+                    ml_titles.extend(get_ml_recs(seed_game.title, num_recommendations=3))
+
+            # Fetch all ML candidate objects in one batch
+            ml_candidates = Game.query.filter(
+                Game.title.in_(ml_titles),
+                ~Game.game_id.in_(owned_ids)
+            ).all()
 
             # --- 2. Rule-Based Extraction ---
             rule_candidates = get_score_based_recommendations(user_library, limit=limit*2)
             
             # --- 3. Merging and De-duplication ---
-            unique_recommendations = []
+            candidate_ids = []
             seen_ids = set(owned_ids)
 
             # High priority: ML candidates
             for g in ml_candidates:
                 if g.game_id not in seen_ids:
-                    unique_recommendations.append(g)
+                    candidate_ids.append(g.game_id)
                     seen_ids.add(g.game_id)
             
-            # Fill the rest with Rule-based candidates
-            for g_dict in rule_candidates:
-                g_id = g_dict.get('mysql_game_id')
-                if g_id and g_id not in seen_ids:
-                    # Fetch from MySQL to get full object
-                    g_obj = Game.query.get(g_id)
-                    if g_obj:
-                        unique_recommendations.append(g_obj)
-                        seen_ids.add(g_id)
+            # Fill with Rule-based candidates
+            rule_ids = [r['mysql_game_id'] for r in rule_candidates if r.get('mysql_game_id') not in seen_ids]
+            candidate_ids.extend(rule_ids[:limit])
             
-            # --- 4. Hydration (Metadata from MongoDB) ---
+            # --- 4. Batch Hydration (Metadata from MongoDB) ---
+            target_ids = candidate_ids[:limit]
+            all_metadata = get_games_by_ids_from_mongodb(target_ids)
+            metadata_map = {m['mysql_game_id']: m for m in all_metadata}
+            
+            # Fetch MySQL objects for these final IDs in one batch
+            final_game_objs = Game.query.filter(Game.game_id.in_(target_ids)).all()
+            game_obj_map = {g.game_id: g for g in final_game_objs}
+
             final_recs = []
-            for game_obj in unique_recommendations[:limit]:
-                metadata = get_game_by_id_from_mongodb(game_obj.game_id)
-                final_recs.append({
-                    "game_id": game_obj.game_id,
-                    "title": game_obj.title,
-                    "price": float(game_obj.price) if game_obj.price else 0.0,
-                    "background_image": metadata.get("background_image") if metadata else None,
-                    "description": metadata.get("description") if metadata else "No description available."
-                })
+            for gid in target_ids:
+                game_obj = game_obj_map.get(gid)
+                metadata = metadata_map.get(gid)
+                if game_obj:
+                    final_recs.append({
+                        "game_id": game_obj.game_id,
+                        "title": game_obj.title,
+                        "price": float(game_obj.price) if game_obj.price else 0.0,
+                        "background_image": metadata.get("background_image") if metadata else None,
+                        "description": metadata.get("description") if metadata else "No description available.",
+                        "steam_url": metadata.get("steam_url") if metadata else None
+                    })
             
             # Store in cache
             cls._CACHE[user_id] = final_recs
-            
             return final_recs
 
         except Exception as e:

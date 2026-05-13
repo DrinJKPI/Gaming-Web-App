@@ -26,6 +26,116 @@
     {% block content %}{% endblock %}
 </div>
 
+<script>
+// Global UI & Library Bridge
+(function() {
+    console.log("Library Bridge: Initializing high-priority interceptor...");
+    
+    const modal = document.getElementById('customModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalMsg = document.getElementById('modalMessage');
+    const confirmBtn = document.getElementById('modalConfirm');
+    const cancelBtn = document.getElementById('modalCancel');
+
+    let currentAction = null;
+
+    window.showConfirm = function(title, message, onConfirm) {
+        modalTitle.innerText = title;
+        modalMsg.innerText = message;
+        modal.style.display = 'flex';
+        currentAction = onConfirm;
+    };
+
+    if (cancelBtn) cancelBtn.onclick = () => { modal.style.display = 'none'; currentAction = null; };
+    if (confirmBtn) confirmBtn.onclick = () => { 
+        if (currentAction) currentAction();
+        modal.style.display = 'none';
+    };
+
+    function handleGlobalSubmit(e) {
+        const form = e.target.closest('form');
+        if (!form) return;
+
+        const action = form.getAttribute('action') || '';
+        console.log("Form submit detected. Action:", action);
+
+        if (action.includes('/add_to_library') || action.includes('/remove_from_library')) {
+            console.log("Intercepting library action:", action);
+            e.preventDefault();
+            e.stopPropagation();
+
+            const isRemove = action.includes('/remove_from_library');
+            
+            const processForm = () => {
+                console.log("Starting AJAX process for:", action);
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalText = submitBtn ? submitBtn.innerText : '';
+                
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerText = isRemove ? 'Removing...' : 'Adding...';
+                    submitBtn.style.opacity = '0.7';
+                }
+
+                fetch(action, {
+                    method: 'POST',
+                    headers: { 
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(r => {
+                    console.log("Server response status:", r.status);
+                    if (!r.ok) throw new Error("HTTP error " + r.status);
+                    return r.json();
+                })
+                .then(data => {
+                    console.log("Success data received:", data);
+                    if (data.success) {
+                        if (isRemove) {
+                            const card = form.closest('.game-card') || form.closest('.rec-card');
+                            if (card) {
+                                card.style.opacity = '0'; card.style.transform = 'scale(0.95)';
+                                card.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+                                setTimeout(() => {
+                                    card.remove();
+                                    if (document.querySelectorAll('.game-card').length === 0 && window.location.pathname.includes('/library')) {
+                                        location.reload();
+                                    }
+                                }, 400);
+                            }
+                        } else if (submitBtn) {
+                            submitBtn.className = 'btn-disabled';
+                            submitBtn.innerText = 'In Library';
+                            submitBtn.disabled = true;
+                            submitBtn.style.opacity = '1';
+                        }
+                    } else {
+                        console.error("Server reported failure:", data.message);
+                        alert(data.message);
+                        if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = originalText; submitBtn.style.opacity = '1'; }
+                    }
+                })
+                .catch(err => { 
+                    console.error("AJAX Fetch failed, falling back to standard submit:", err);
+                    form.submit(); 
+                });
+            };
+
+            if (isRemove) {
+                showConfirm('Remove Game', 'Are you sure you want to remove this game from your library?', processForm);
+            } else {
+                processForm();
+            }
+        }
+    }
+
+    // Attach with capture phase (true) to ensure we run before any other submit listeners
+    document.addEventListener('submit', handleGlobalSubmit, true);
+    console.log("Library Bridge: Interceptor ACTIVE.");
+})();
+</script>
+
 <!-- NEW: Include search JavaScript -->
 <script src="{{ url_for('static', filename='javascript/search.js') }}"></script>
 

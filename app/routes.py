@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash, jsonify
 from app.services import (get_user_by_email, create_user, check_password, 
                           get_user_by_username, get_all_games, add_game_to_library, 
                           get_game_by_id, get_user_library, remove_game_from_library)
@@ -27,6 +27,21 @@ def home():
         if user_library:
             # Use the new Hybrid Recommender Service
             recommendations = HybridRecommender.get_homepage_recommendations(user_id, limit=4)
+        
+        # Fallback: If no library or recommendations failed, show popular/top-rated games
+        if not recommendations:
+            from app.mongodb import get_mongodb
+            mongo_db = get_mongodb()
+            if mongo_db is not None:
+                top_games = list(mongo_db.games.find().sort("rating", -1).limit(4))
+                for g in top_games:
+                    recommendations.append({
+                        "game_id": g.get("mysql_game_id"),
+                        "title": g.get("title"),
+                        "price": float(g.get("price")) if g.get("price") else 0.0,
+                        "background_image": g.get("background_image"),
+                        "steam_url": g.get("steam_url")
+                    })
 
     return render_template(
         "home.html", 
@@ -52,12 +67,22 @@ def login():
                 session["user_id"] = user.user_id
                 session["username"] = user.username
                 session["email"] = user.email
+                
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return jsonify({"success": True, "redirect_url": url_for("main.home")})
+                    
                 return redirect(url_for("main.home"))
 
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({"success": False, "message": "Invalid credentials"}), 401
+                
             return render_template("login.html", error="Invalid credentials"), 401
 
         except Exception as e:
             logger.error(f"Login error: {e}")
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({"success": False, "message": "An unexpected error occurred"}), 500
+            return render_template("login.html", error="An unexpected error occurred"), 500
             return render_template("login.html", error="Login failed. Please try again."), 500
 
     return render_template("login.html")
@@ -91,11 +116,17 @@ def register():
 
             # Create the new user account
             create_user(username, email, password, full_name)
-            return redirect(url_for("main.login"))
+            
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({"success": True, "message": "Registration successful! You can now login.", "redirect_url": url_for("main.login")})
+                
+            return render_template("register.html", success="Registration successful! You can now login.")
 
         except Exception as e:
             logger.error(f"Registration error: {e}")
-            return render_template("register.html", error="Registration failed. Please try again."), 500
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({"success": False, "message": "Registration failed. Try a different username/email."}), 400
+            return render_template("register.html", error="Registration failed. Try a different username/email."), 400
 
     return render_template("register.html")
 
@@ -143,6 +174,9 @@ def add_to_library(game_id):
         # Invalidate recommendation cache
         HybridRecommender.clear_cache(user_id)
         
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({"success": True, "message": "Game added to library"})
+            
         if success:
             print(f"DEBUG: Successfully added to DB")  # 3. Did the service work?
         else:
@@ -164,6 +198,10 @@ def remove_from_library(game_id):
         
         # Invalidate recommendation cache
         HybridRecommender.clear_cache(user_id)
+        
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({"success": True, "message": "Game removed from library"})
+            
         return redirect(url_for("main.library"))
 
     except Exception as e:

@@ -15,8 +15,12 @@ from app.game_metadata_service import get_all_games_from_mongodb, get_game_by_id
 from collections import Counter
 
 
+# Module-level cache for all games to avoid repeated MongoDB scans
+_ALL_GAMES_CACHE = None
+
 def get_score_based_recommendations(user_library, limit=5):
     """Core logic to generate recommendations from library data"""
+    global _ALL_GAMES_CACHE
     try:
         if not user_library:
             return []
@@ -24,12 +28,9 @@ def get_score_based_recommendations(user_library, limit=5):
         # Get owned game IDs
         owned_game_ids = [entry["game_id"] for entry in user_library]
 
-        # Fetch owned games from MongoDB to analyze preferences
-        owned_games = []
-        for game_id in owned_game_ids:
-            game = get_game_by_id_from_mongodb(game_id)
-            if game:
-                owned_games.append(game)
+        # Fetch owned games from MongoDB to analyze preferences (BATCH)
+        from app.game_metadata_service import get_games_by_ids_from_mongodb
+        owned_games = get_games_by_ids_from_mongodb(owned_game_ids)
 
         # Analyze user's genre preferences
         genre_counter = Counter()
@@ -44,7 +45,11 @@ def get_score_based_recommendations(user_library, limit=5):
         top_genres = [genre for genre, _ in genre_counter.most_common(3)]
         top_tags = [tag for tag, _ in tag_counter.most_common(5)]
 
-        all_games = get_all_games_from_mongodb()
+        # Efficiently fetch all games (with a simple refreshable cache)
+        if _ALL_GAMES_CACHE is None:
+            _ALL_GAMES_CACHE = get_all_games_from_mongodb()
+        
+        all_games = _ALL_GAMES_CACHE
         scored_recommendations = []
 
         for game in all_games:
@@ -52,6 +57,7 @@ def get_score_based_recommendations(user_library, limit=5):
                 continue
 
             score = 0
+            # Weighting logic
             for genre in game.get('genres', []):
                 if genre in top_genres:
                     score += 3
@@ -59,7 +65,7 @@ def get_score_based_recommendations(user_library, limit=5):
                 if tag in top_tags:
                     score += 1
             if game.get('rating'):
-                score += game['rating']
+                score += (game['rating'] * 0.5) # Scale rating impact
 
             if score > 0:
                 scored_recommendations.append({
