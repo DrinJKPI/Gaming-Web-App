@@ -10,7 +10,7 @@ on:
   push:
     branches:
       - main
-
+      - url_added_to_games
 jobs:
   docker:
     runs-on: ubuntu-latest
