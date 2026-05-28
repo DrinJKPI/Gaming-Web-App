@@ -11,6 +11,7 @@ on:
     branches:
       - main
       - url_added_to_games
+      - presentation
 jobs:
   docker:
     runs-on: ubuntu-latest
